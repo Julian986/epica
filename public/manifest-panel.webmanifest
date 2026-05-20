@@ -1,0 +1,8 @@
+{
+  "name": "Panel Épica Peluqueria",
+  "short_name": "Panel Épica",
+  "start_url": "/panel-turnos",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111"
+}
