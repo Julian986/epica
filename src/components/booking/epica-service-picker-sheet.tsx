@@ -170,7 +170,7 @@ export function EpicaServicePickerSheet({
             >
               <p className="text-[18px] leading-tight font-heading text-[var(--soft-gray)]">Complementarios</p>
               <p className="mt-1 text-[12px] text-[var(--soft-gray)]/58">
-                Solo Botox capilar o lifting de cejas
+                Botox, retoque de raíces o lifting de cejas
               </p>
             </button>
           </div>

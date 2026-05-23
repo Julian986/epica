@@ -9,6 +9,7 @@ export type HairLengthId = "corto" | "medio" | "largo";
 /** Duración provisional hasta confirmación del salón (afecta grilla de turnos). */
 const PROVISIONAL_LACIO_MINUTES = 180;
 const PROVISIONAL_BOTOX_MINUTES = 60;
+const PROVISIONAL_RETOQUE_MINUTES = 180;
 const PROVISIONAL_CEJAS_MINUTES = 45;
 
 export const HAIR_LENGTH_OPTIONS: {
@@ -120,6 +121,18 @@ export const SALON_TREATMENTS: SalonTreatment[] = [
     durationMinutes: PROVISIONAL_BOTOX_MINUTES,
     imageUrl: "/servicios_epica.jpeg",
     priceLabel: "$70.000",
+  },
+  {
+    id: "retoque-raices-epica",
+    name: "Retoque de Raíces Épica",
+    subtitle: "Crecimiento · Precio y duración a confirmar",
+    description:
+      "Mantiene tu lacio en el crecimiento: raíces, Photon y nanoterapia. Solo si pasaron menos de 6 meses desde tu último alisado (sujeto a diagnóstico).",
+    category: "Complementarios",
+    durationLabel: "A confirmar",
+    durationMinutes: PROVISIONAL_RETOQUE_MINUTES,
+    imageUrl: "/servicios_epica.jpeg",
+    priceLabel: "A confirmar",
   },
   {
     id: "lifting-laminado-cejas-epica",

@@ -85,6 +85,7 @@ function TreatmentsPageContent() {
   }, [searchParams]);
 
   const botoxTreatment = findSalonTreatmentById("botox-capilar-epica");
+  const retoqueTreatment = findSalonTreatmentById("retoque-raices-epica");
   const miradaTreatment = findSalonTreatmentById("lifting-laminado-cejas-epica");
 
   return (
@@ -260,10 +261,30 @@ function TreatmentsPageContent() {
               <YoeGuideBody content={YOE_GUIDE_RETOQUE_RAICES} />
               <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_CAPILAR} />
             </GuidePanel>
-            <p className="text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/75">
-              Precio y reserva online del retoque: consultanos para confirmar tu caso.
+
+            {retoqueTreatment ? (
+              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
+                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
+                  <div className="relative z-10 flex h-full items-center justify-center">
+                    <Wind className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
+                  </div>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
+                  <h2 className="text-[17px] leading-tight font-heading">{retoqueTreatment.name}</h2>
+                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{retoqueTreatment.priceLabel}</p>
+                  <p className="mt-1 text-[10px] text-[var(--soft-gray)]/65">
+                    Duración: {retoqueTreatment.durationLabel}
+                  </p>
+                </div>
+              </article>
+            ) : null}
+
+            <ReserveButton href="/turnos?treatment=retoque-raices-epica" />
+            <p className="text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/65">
+              Al reservar un turno también podés elegirlo en{" "}
+              <span className="text-[var(--soft-gray)]/85">Complementarios</span>.
             </p>
-            <ReserveButton href="/contacto" label="Consultar retoque de raíces" />
           </section>
         ) : null}
 

@@ -10,7 +10,7 @@ export default function RetoqueRaicesGuidePage() {
       content={YOE_GUIDE_RETOQUE_RAICES}
       prepContent={YOE_PROTOCOLO_PREPARACION_CAPILAR}
       backHref="/tratamientos?familia=capilares&servicio=retoque"
-      cta={{ href: "/contacto", label: "Consultar retoque de raíces" }}
+      reserveHref="/turnos?treatment=retoque-raices-epica"
     />
   );
 }
