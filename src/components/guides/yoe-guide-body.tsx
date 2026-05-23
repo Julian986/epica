@@ -1,8 +1,9 @@
-type LineKind = "divider" | "spacer" | "hero" | "section" | "highlight" | "check" | "bullet" | "body";
+type LineKind = "divider" | "spacer" | "hero" | "section" | "highlight" | "check" | "warn" | "bullet" | "body";
 
 const HERO_PREFIX = /^✨\s+/u;
 const SECTION_PREFIX =
-  /^[💎🚀🧠🧪🎓💼🔥⚡🔬🎯👁️🌿🔴💁‍♀️⚠️]/u;
+  /^[💎🚀🧠🧪🎓💼🔥⚡🔬🎯👁️🌿🔴💁‍♀️⚠️🧴🛍️]/u;
+const WARN_PREFIX = /^❌/u;
 const HIGHLIGHT_PREFIX = /^[🟢🔵🔴🥥🌰💪]/u;
 const CHECK_PREFIX = /^✔/u;
 const BULLET_PREFIX = /^[*•]\s/u;
@@ -20,6 +21,7 @@ function classifyLine(line: string, index: number, lines: string[]): LineKind {
   if (HERO_PREFIX.test(line) && index > firstIdx) return "section";
   if (SECTION_PREFIX.test(line)) return "section";
   if (CHECK_PREFIX.test(line)) return "check";
+  if (WARN_PREFIX.test(line)) return "warn";
   if (BULLET_PREFIX.test(line)) return "bullet";
   if (HIGHLIGHT_PREFIX.test(line)) return "highlight";
 
@@ -31,6 +33,7 @@ const lineClass: Record<Exclude<LineKind, "divider" | "spacer">, string> = {
   section: "mt-1 font-heading text-[18px] leading-[1.25] text-white first:mt-0",
   highlight: "text-[14px] leading-[1.5] text-white/95",
   check: "text-[14px] leading-[1.5] text-white/90",
+  warn: "text-[14px] leading-[1.5] text-red-300/90",
   bullet:
     "border-l-2 border-[var(--premium-gold)]/35 pl-3.5 text-[14px] leading-[1.5] text-[var(--soft-gray)]/92",
   body: "text-[14px] leading-[1.6] text-[var(--soft-gray)]/88",

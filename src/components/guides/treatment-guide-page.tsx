@@ -4,6 +4,7 @@ import { CalendarDays, ChevronLeft, Home as HomeIcon, Percent, Sparkles, User } 
 import Link from "next/link";
 
 import { YoeGuideBody } from "@/components/guides/yoe-guide-body";
+import { YoePrepSection } from "@/components/guides/yoe-prep-section";
 
 export type GuidePageCta = {
   href: string;
@@ -13,6 +14,8 @@ export type GuidePageCta = {
 
 type TreatmentGuidePageProps = {
   content: string;
+  /** Protocolo de preparación (alisado, botox, retoque o mirada). */
+  prepContent?: string;
   backHref?: string;
   backLabel?: string;
   /** @deprecated Usar `cta` */
@@ -22,6 +25,7 @@ type TreatmentGuidePageProps = {
 
 export function TreatmentGuidePage({
   content,
+  prepContent,
   backHref = "/tratamientos",
   backLabel = "Servicios",
   reserveHref,
@@ -45,6 +49,7 @@ export function TreatmentGuidePage({
 
         <div className="rounded-2xl border border-white/[0.06] bg-[#161616]/80 px-4 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.35)] sm:px-5 sm:py-6">
           <YoeGuideBody content={content} />
+          {prepContent ? <YoePrepSection content={prepContent} /> : null}
         </div>
 
         {primaryCta ? (

@@ -137,7 +137,7 @@ export function EpicaServicePickerSheet({
         {step === "root" ? (
           <div className="space-y-2 pb-2">
             <Link
-              href="/tratamientos?guia=alisado"
+              href="/tratamientos?familia=capilares&servicio=alisado"
               className="mb-1 flex w-full items-center justify-center rounded-xl border border-[var(--premium-gold)]/20 bg-[rgba(228,202,105,0.06)] px-3 py-2.5 text-[12px] leading-snug text-[var(--premium-gold)]"
             >
               ✨ ALISADO PREMIUM ÉPICA

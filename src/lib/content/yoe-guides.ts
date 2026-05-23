@@ -444,11 +444,179 @@ Es una herramienta para cambiar tu ingreso.
 
 Salís capacitada, segura y lista para trabajar.`;
 
+/** Mismo protocolo para alisado, botox y retoque de raíces (Yoe, may 2026). */
+export const YOE_PROTOCOLO_PREPARACION_CAPILAR = `✨ PROTOCOLO DE PREPARACIÓN CAPILAR ÉPICA ✨
+
+Para garantizar un resultado PERFECTO en tu alisado, es fundamental que tu cabello llegue en condiciones óptimas. Este paso define la calidad, duración y uniformidad del servicio.
+
+⸻
+
+💎 ¿Cómo tenés que venir?
+
+✔️ Cabello limpio
+✔️ Cabello 100% seco
+✔️ Sin ningún producto aplicado
+
+⸻
+
+🧴 LAVADO CORRECTO (EN CASA)
+
+• Lavar con shampoo neutro
+• Realizar 3 lavados consecutivos en el mismo momento
+• Enjuagar perfectamente cada vez
+• No aplicar crema, máscara, ampolla ni ningún producto
+
+⸻
+
+⚠️ IMPORTANTE
+
+❌ No usar detergente
+❌ No usar jabón corporal (aunque diga “neutro”)
+❌ No reemplazar el shampoo por productos caseros
+
+Estos pueden generar irritación, ardor o reacciones no deseadas durante el servicio.
+
+⸻
+
+🔥 SECADO
+
+• Secar con secador SI O SI
+• No venir con el cabello húmedo
+• No utilizar plancha antes del turno
+
+⸻
+
+💰 CONDICIÓN DE SERVICIO
+
+Cabello mal lavado o con residuos → recargo de $10.000
+(Si es necesario volver a lavar en el salón)
+
+⸻
+
+🛍️ TIP PRÁCTICO
+
+Si no tenés shampoo neutro, podés conseguirlo en sobrecitos individuales: prácticos, económicos y perfectos para este protocolo.
+
+⸻
+
+✨ ¿Por qué es tan importante?
+
+El cabello tiene que estar completamente limpio para volverse RECEPTIVO al producto del alisado.
+
+Si el pelo está sucio o mal lavado:
+• El producto no penetra correctamente
+• El resultado no es uniforme
+• Disminuye la duración
+• Se pierde brillo y efecto lacio
+
+En cambio, un cabello bien preparado:
+✔️ Absorbe mejor el activo
+✔️ Logra un lacio más perfecto
+✔️ Mantiene el resultado por más tiempo
+
+💎 Un buen alisado empieza ANTES de llegar al salón.`;
+
+export const YOE_PROTOCOLO_PREPARACION_MIRADA = `✨ PREPARACIÓN PARA LIFTING & LAMINADO ✨
+
+Para lograr un resultado prolijo, duradero y seguro, es clave que vengas SIN NADA en la zona.
+
+⸻
+
+💎 ¿Cómo tenés que venir?
+
+✔️ Sin maquillaje
+✔️ Sin máscara de pestañas
+✔️ Sin base ni corrector
+✔️ Sin cremas ni aceites
+
+⸻
+
+⚠️ IMPORTANTE
+
+Cualquier residuo en pestañas o cejas:
+❌ Impide que el producto actúe correctamente
+❌ Reduce la duración del resultado
+❌ Puede generar irritación o mala adhesión
+
+💰 En caso de tener que limpiar la zona en el salón, se considera servicio adicional.
+
+⸻
+
+💎 ¿Por qué es tan importante?
+
+Las pestañas y cejas tienen que estar completamente limpias para que el producto se adhiera de forma uniforme.
+
+Si hay restos de maquillaje y cremas:
+• El lifting no fija correctamente
+• El laminado no sella parejo
+• El resultado pierde definición y duración
+
+✔️ Una correcta preparación = efecto más definido, prolijo y duradero`;
+
+export const YOE_GUIDE_RETOQUE_RAICES = `✨ RETOQUE DE RAÍCES ÉPICA ✨
+
+El retoque de alisado está diseñado para mantener tu lacio PERFECTO, trabajando únicamente el crecimiento sin volver a intervenir todo el cabello.
+
+⸻
+
+💎 ¿Qué incluye?
+
+✔️ Aplicación en raíces (crecimiento)
+✔️ Láser Photon (sellado y activación del producto)
+✔️ Nanoterapia (reconstrucción + brillo)
+✔️ Mismo tiempo de reposo que un alisado completo
+
+⸻
+
+⚠️ CONDICIÓN CLAVE
+
+Se considera RETOQUE únicamente si:
+✔️ No pasaron más de 6 meses desde tu último alisado
+
+❌ Si supera ese tiempo → corresponde ALISADO COMPLETO
+
+📌 Sujeto a diagnóstico profesional
+
+⸻
+
+✔️ Un retoque bien realizado permite:
+
+• Lacio parejo desde raíz a puntas
+• Brillo y suavidad intactos
+• Mayor duración del tratamiento`;
+
+export const TREATMENT_FAMILIES = [
+  { id: "capilares", label: "Tratamientos capilares" },
+  { id: "mirada", label: "Cejas y pestañas" },
+] as const;
+
+export type TreatmentFamilyId = (typeof TREATMENT_FAMILIES)[number]["id"];
+
+export const CAPILAR_SERVICES = [
+  { id: "alisado", label: "Alisado" },
+  { id: "botox", label: "Botox" },
+  { id: "hidronutritivo", label: "Hidronutritivo" },
+  { id: "retoque", label: "Retoque de raíces" },
+] as const;
+
+export type CapilarServiceId = (typeof CAPILAR_SERVICES)[number]["id"];
+
+export function parseTreatmentFamilyParam(value: string | null): TreatmentFamilyId {
+  if (value === "mirada") return "mirada";
+  return "capilares";
+}
+
+export function parseCapilarServiceParam(value: string | null): CapilarServiceId {
+  if (value === "botox" || value === "hidronutritivo" || value === "retoque") return value;
+  return "alisado";
+}
+
 export const CURSO_PATH = "/curso";
 
 export const TREATMENT_GUIDE_PATHS = {
-  alisado: "/tratamientos/alisado",
+  alisado: "/tratamientos?familia=capilares&servicio=alisado",
   botox: "/tratamientos/botox-capilar",
   hidronutritivo: "/tratamientos/hidronutritivo",
-  mirada: "/tratamientos/experiencia-mirada",
+  mirada: "/tratamientos?familia=mirada",
+  retoque: "/tratamientos/retoque-raices",
 } as const;

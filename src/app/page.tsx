@@ -138,7 +138,7 @@ function HomeContent() {
               </p>
               <div className="mt-3 flex items-center justify-between gap-3">
                 <Link
-                  href="/tratamientos?guia=alisado"
+                  href="/tratamientos?familia=capilares&servicio=alisado"
                   className="flex h-10 items-center justify-center rounded-full border border-white/12 bg-[#1a1a1a] px-4 text-[12px] font-medium tracking-[0.08em] text-[var(--soft-gray)]"
                 >
                   Conocé más

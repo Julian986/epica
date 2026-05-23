@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  BookOpen,
   CalendarDays,
   ChevronRight,
   Droplets,
+  Eye,
   Home as HomeIcon,
   Percent,
   Sparkles,
@@ -13,48 +13,79 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { YoeGuideBody } from "@/components/guides/yoe-guide-body";
-import { CURSO_PATH, TREATMENT_GUIDE_PATHS, YOE_GUIDE_ALISADO } from "@/lib/content/yoe-guides";
+import { YoePrepSection } from "@/components/guides/yoe-prep-section";
+import {
+  CAPILAR_SERVICES,
+  CURSO_PATH,
+  TREATMENT_FAMILIES,
+  YOE_GUIDE_ALISADO,
+  YOE_GUIDE_BOTOX,
+  YOE_GUIDE_HIDRONUTRITIVO,
+  YOE_GUIDE_MIRADA,
+  YOE_GUIDE_RETOQUE_RAICES,
+  YOE_PROTOCOLO_PREPARACION_CAPILAR,
+  YOE_PROTOCOLO_PREPARACION_MIRADA,
+  parseCapilarServiceParam,
+  parseTreatmentFamilyParam,
+  type CapilarServiceId,
+  type TreatmentFamilyId,
+} from "@/lib/content/yoe-guides";
 import {
   LACIO_VARIANT_OPTIONS,
-  SALON_TREATMENTS,
-  TREATMENT_CATEGORIES,
+  findSalonTreatmentById,
   listLacioTreatmentsByVariant,
   type LacioVariantId,
-  type TreatmentCategory,
 } from "@/lib/treatments/catalog";
 
-type LacioView = "servicios" | "guia";
+const pillClass = (active: boolean) =>
+  `shrink-0 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${
+    active ? "bg-[#2a2a2a] text-[var(--soft-gray)]" : "bg-transparent text-[var(--soft-gray)]/70"
+  }`;
 
-const lacioSubTabClass = (active: boolean) =>
-  `flex flex-1 items-center justify-center rounded-full py-2 text-[13px] transition-colors ${
+const subPillClass = (active: boolean) =>
+  `shrink-0 rounded-full px-3 py-1.5 text-[12px] transition-colors ${
     active ? "bg-[#2a2a2a] text-[var(--soft-gray)]" : "bg-transparent text-[var(--soft-gray)]/65"
   }`;
 
-function CategoryIcon({ category }: { category: TreatmentCategory }) {
-  const cls = "h-7 w-7 text-[var(--premium-gold)]";
-  if (category === "Lacio") return <Wind className={cls} strokeWidth={1.9} />;
-  return <Droplets className={cls} strokeWidth={1.9} />;
+function ReserveButton({ href, label = "Reservar turno" }: { href: string; label?: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]"
+    >
+      {label}
+    </Link>
+  );
+}
+
+function GuidePanel({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/[0.06] bg-[#161616]/80 px-4 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
+      {children}
+    </div>
+  );
 }
 
 function TreatmentsPageContent() {
   const searchParams = useSearchParams();
-  const [activeCategory, setActiveCategory] = useState<TreatmentCategory>("Lacio");
-  const [lacioView, setLacioView] = useState<LacioView>("servicios");
+  const [family, setFamily] = useState<TreatmentFamilyId>("capilares");
+  const [capilarService, setCapilarService] = useState<CapilarServiceId>("alisado");
 
   useEffect(() => {
     if (searchParams.get("guia") === "alisado") {
-      setActiveCategory("Lacio");
-      setLacioView("guia");
+      setFamily("capilares");
+      setCapilarService("alisado");
+      return;
     }
+    setFamily(parseTreatmentFamilyParam(searchParams.get("familia")));
+    setCapilarService(parseCapilarServiceParam(searchParams.get("servicio")));
   }, [searchParams]);
 
-  const complementarios = useMemo(
-    () => SALON_TREATMENTS.filter((service) => service.category === "Complementarios"),
-    [],
-  );
+  const botoxTreatment = findSalonTreatmentById("botox-capilar-epica");
+  const miradaTreatment = findSalonTreatmentById("lifting-laminado-cejas-epica");
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
@@ -68,62 +99,113 @@ function TreatmentsPageContent() {
 
         <p className="mb-3 text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/85">
           Los precios pueden ajustarse según diagnóstico de largo, cantidad y estado del cabello.
-          Cabello abundante: + $10.000 en servicios Lacio.
+          Cabello abundante: + $10.000 en alisados.
         </p>
 
         <section className="mb-2 flex items-center gap-2 overflow-x-auto pb-1">
-          {TREATMENT_CATEGORIES.map((category) => {
-            const isActive = category === activeCategory;
-
-            return (
-              <button
-                key={category}
-                onClick={() => {
-                  setActiveCategory(category);
-                  if (category === "Lacio") setLacioView("servicios");
-                }}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
-                  isActive
-                    ? "bg-[#2a2a2a] text-[var(--soft-gray)]"
-                    : "bg-transparent text-[var(--soft-gray)]/70"
-                }`}
-              >
-                {category}
-              </button>
-            );
-          })}
+          {TREATMENT_FAMILIES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setFamily(item.id)}
+              className={pillClass(family === item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
         </section>
 
-        {activeCategory === "Lacio" ? (
-          <section className="mb-3 flex gap-2">
-            <button
-              type="button"
-              onClick={() => setLacioView("servicios")}
-              className={lacioSubTabClass(lacioView === "servicios")}
-            >
-              Servicios
-            </button>
-            <button
-              type="button"
-              onClick={() => setLacioView("guia")}
-              className={`${lacioSubTabClass(lacioView === "guia")} gap-1.5`}
-            >
-              <BookOpen className="h-3.5 w-3.5 shrink-0" strokeWidth={1.9} />
-              Guía alisado
-            </button>
+        {family === "capilares" ? (
+          <section className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1">
+            {CAPILAR_SERVICES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setCapilarService(item.id)}
+                className={subPillClass(capilarService === item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
           </section>
         ) : null}
 
-        {activeCategory === "Lacio" && lacioView === "guia" ? (
-          <section className="pb-2">
-            <YoeGuideBody content={YOE_GUIDE_ALISADO} />
-            <div className="mt-8 space-y-3">
-              <Link
-                href="/turnos"
-                className="flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]"
-              >
-                Reservar turno
-              </Link>
+        {family === "capilares" && capilarService === "alisado" ? (
+          <section className="space-y-4 pb-2">
+            <GuidePanel>
+              <YoeGuideBody content={YOE_GUIDE_ALISADO} />
+              <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_CAPILAR} />
+            </GuidePanel>
+
+            <div className="space-y-3">
+              <p className="text-center text-[12px] tracking-[0.08em] text-[var(--soft-gray)]/75 uppercase">
+                Paquetes de alisado
+              </p>
+              {LACIO_VARIANT_OPTIONS.map((variant) => {
+                const lengths = listLacioTreatmentsByVariant(variant.id as LacioVariantId);
+
+                return (
+                  <article
+                    key={variant.id}
+                    className="overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+                  >
+                    <div className="relative h-24 overflow-hidden bg-[#141414]">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%),linear-gradient(135deg,#191919_0%,#131313_58%,#0f0f0f_100%)]" />
+                      <div className="relative z-10 flex h-full items-center justify-center">
+                        <Wind className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
+                      </div>
+                    </div>
+
+                    <div className="px-4 pb-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <h2 className="text-[20px] leading-tight font-heading">{variant.name}</h2>
+                        <p className="shrink-0 text-[12px] text-[var(--premium-gold)]">
+                          desde {variant.priceFromLabel}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-relaxed text-[var(--soft-gray)]/80">
+                        {variant.description}
+                      </p>
+                      <ul className="mt-2 space-y-0.5 text-[10px] text-[var(--soft-gray)]/70">
+                        {variant.benefits.map((b) => (
+                          <li key={b}>· {b}</li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {lengths.map((t) => (
+                          <div
+                            key={t.id}
+                            className="rounded-xl border border-white/6 bg-[#141414] px-2 py-2 text-center"
+                          >
+                            <p className="text-[11px] font-medium text-white/90">
+                              {t.hairLength === "corto"
+                                ? "Corto"
+                                : t.hairLength === "medio"
+                                  ? "Medio"
+                                  : "Largo"}
+                            </p>
+                            <p className="mt-0.5 text-[10px] text-[var(--premium-gold)]">{t.priceLabel}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-3">
+                        <Link
+                          href={`/turnos?variant=${variant.id}`}
+                          className="flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
+                        >
+                          Reservar
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="space-y-3">
+              <ReserveButton href="/turnos" />
               <Link
                 href={CURSO_PATH}
                 className="flex h-11 w-full items-center justify-center rounded-full border border-white/10 bg-[#1a1a1a] text-[13px] font-medium text-[var(--soft-gray)]"
@@ -134,138 +216,93 @@ function TreatmentsPageContent() {
           </section>
         ) : null}
 
-        {activeCategory === "Lacio" && lacioView === "servicios" ? (
-          <section className="space-y-3">
-            {LACIO_VARIANT_OPTIONS.map((variant) => {
-              const lengths = listLacioTreatmentsByVariant(variant.id as LacioVariantId);
+        {family === "capilares" && capilarService === "botox" ? (
+          <section className="space-y-4 pb-2">
+            <GuidePanel>
+              <YoeGuideBody content={YOE_GUIDE_BOTOX} />
+              <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_CAPILAR} />
+            </GuidePanel>
 
-              return (
-                <article
-                  key={variant.id}
-                  className="overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
-                >
-                  <div className="relative h-28 overflow-hidden bg-[#141414]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%),linear-gradient(135deg,#191919_0%,#131313_58%,#0f0f0f_100%)]" />
-                    <div className="relative z-10 flex h-full items-center justify-center">
-                      <Wind className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
-                    </div>
+            {botoxTreatment ? (
+              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
+                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
+                  <div className="relative z-10 flex h-full items-center justify-center">
+                    <Droplets className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
                   </div>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
+                  <h2 className="text-[17px] leading-tight font-heading">{botoxTreatment.name}</h2>
+                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{botoxTreatment.priceLabel}</p>
+                  <p className="mt-1 text-[10px] text-[var(--soft-gray)]/65">
+                    Duración: {botoxTreatment.durationLabel}
+                  </p>
+                </div>
+              </article>
+            ) : null}
 
-                  <div className="px-4 pb-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h2 className="text-[20px] leading-tight font-heading">{variant.name}</h2>
-                      <p className="shrink-0 text-[12px] text-[var(--premium-gold)]">
-                        desde {variant.priceFromLabel}
-                      </p>
-                    </div>
-                    <p className="mt-1 text-[11px] leading-relaxed text-[var(--soft-gray)]/80">
-                      {variant.description}
-                    </p>
-                    <ul className="mt-2 space-y-0.5 text-[10px] text-[var(--soft-gray)]/70">
-                      {variant.benefits.map((b) => (
-                        <li key={b}>· {b}</li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {lengths.map((t) => (
-                        <div
-                          key={t.id}
-                          className="rounded-xl border border-white/6 bg-[#141414] px-2 py-2 text-center"
-                        >
-                          <p className="text-[11px] font-medium text-white/90">
-                            {t.hairLength === "corto"
-                              ? "Corto"
-                              : t.hairLength === "medio"
-                                ? "Medio"
-                                : "Largo"}
-                          </p>
-                          <p className="mt-0.5 text-[10px] text-[var(--premium-gold)]">{t.priceLabel}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-3">
-                      <Link
-                        href={`/turnos?variant=${variant.id}`}
-                        className="flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
-                      >
-                        Reservar
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            <ReserveButton href="/turnos?treatment=botox-capilar-epica" />
           </section>
         ) : null}
 
-        {activeCategory === "Complementarios" ? (
-          <section className="grid grid-cols-1 gap-3">
-            <Link
-              href={TREATMENT_GUIDE_PATHS.hidronutritivo}
-              className="flex items-center gap-3 rounded-2xl border border-white/8 bg-[#1a1a1a] px-4 py-3 transition-colors hover:bg-[#1f1f1f]"
-            >
-              <p className="min-w-0 flex-1 text-[14px] leading-tight font-heading text-[var(--soft-gray)]">
-                ✨ TRATAMIENTO HIDRONUTRITIVO ÉPICA
-              </p>
-              <ChevronRight className="h-5 w-5 shrink-0 text-[var(--premium-gold)]/80" strokeWidth={1.8} />
-            </Link>
+        {family === "capilares" && capilarService === "hidronutritivo" ? (
+          <section className="space-y-4 pb-2">
+            <GuidePanel>
+              <YoeGuideBody content={YOE_GUIDE_HIDRONUTRITIVO} />
+            </GuidePanel>
+            <ReserveButton href="/contacto" label="Consultar y reservar" />
+          </section>
+        ) : null}
 
-            {complementarios.map((service) => {
-              const guideHref =
-                service.id === "botox-capilar-epica"
-                  ? TREATMENT_GUIDE_PATHS.botox
-                  : service.id === "lifting-laminado-cejas-epica"
-                    ? TREATMENT_GUIDE_PATHS.mirada
-                    : null;
+        {family === "capilares" && capilarService === "retoque" ? (
+          <section className="space-y-4 pb-2">
+            <GuidePanel>
+              <YoeGuideBody content={YOE_GUIDE_RETOQUE_RAICES} />
+              <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_CAPILAR} />
+            </GuidePanel>
+            <p className="text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/75">
+              Precio y reserva online del retoque: consultanos para confirmar tu caso.
+            </p>
+            <ReserveButton href="/contacto" label="Consultar retoque de raíces" />
+          </section>
+        ) : null}
 
-              return (
-              <article
-                key={service.id}
-                className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
-              >
-                <div className="relative w-28 shrink-0 overflow-hidden bg-[#141414]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%),linear-gradient(135deg,#191919_0%,#131313_58%,#0f0f0f_100%)]" />
+        {family === "mirada" ? (
+          <section className="space-y-4 pb-2">
+            <GuidePanel>
+              <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_MIRADA} />
+              <div className="mt-6 border-t border-white/[0.06] pt-6">
+                <YoeGuideBody content={YOE_GUIDE_MIRADA} />
+              </div>
+            </GuidePanel>
+
+            {miradaTreatment ? (
+              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
+                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
                   <div className="relative z-10 flex h-full items-center justify-center">
-                    <CategoryIcon category={service.category} />
+                    <Eye className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
                   </div>
                 </div>
-
-                <div className="flex min-w-0 flex-1 flex-col px-3 py-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-[17px] leading-tight font-heading">{service.name}</h2>
-                    <p className="shrink-0 text-[12px] text-[var(--premium-gold)]">{service.priceLabel}</p>
-                  </div>
-                  <p className="mt-1 line-clamp-3 text-[11px] leading-tight text-[var(--soft-gray)]/80">
-                    {service.description}
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
+                  <h2 className="text-[17px] leading-tight font-heading">{miradaTreatment.name}</h2>
+                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{miradaTreatment.priceLabel}</p>
+                  <p className="mt-1 text-[10px] leading-snug text-[var(--soft-gray)]/65">
+                    Incluye laminado de cejas y lifting de pestañas según diagnóstico.
                   </p>
-                  <p className="mt-1 text-[10px] tracking-[0.08em] text-[var(--soft-gray)]/65">
-                    Duración: {service.durationLabel}
-                  </p>
-
-                  <div className="mt-auto flex flex-col gap-2 pt-2">
-                    {guideHref ? (
-                      <Link
-                        href={guideHref}
-                        className="flex h-8 w-full items-center justify-center rounded-full border border-white/10 bg-[#141414] text-[13px] font-medium text-[var(--soft-gray)]"
-                      >
-                        {service.id === "botox-capilar-epica"
-                          ? "✨ BOTOX CAPILAR BRASILERO ÉPICA"
-                          : "✨ LAMINADO DE CEJAS ÉPICA"}
-                      </Link>
-                    ) : null}
-                    <Link
-                      href={`/turnos?treatment=${encodeURIComponent(service.id)}`}
-                      className="flex h-8 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
-                    >
-                      Reservar
-                    </Link>
-                  </div>
                 </div>
               </article>
-              );
-            })}
+            ) : null}
+
+            <ReserveButton href="/turnos?treatment=lifting-laminado-cejas-epica" />
+
+            <Link
+              href="/tratamientos/experiencia-mirada"
+              className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-[#1a1a1a] py-3 text-[13px] text-[var(--soft-gray)]"
+            >
+              Ver guía en pantalla completa
+              <ChevronRight className="h-4 w-4 text-[var(--premium-gold)]/80" strokeWidth={1.8} />
+            </Link>
           </section>
         ) : null}
       </main>
@@ -274,15 +311,11 @@ function TreatmentsPageContent() {
         <div className="flex w-full items-center justify-between border-t border-white/8 bg-black/60 px-4 py-2.5 backdrop-blur-[16px]">
           <Link href="/" className="flex min-w-0 flex-1 flex-col items-center gap-1">
             <HomeIcon className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.9} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--soft-gray)]/80">
-              Inicio
-            </span>
+            <span className="text-[9px] tracking-[0.12em] text-[var(--soft-gray)]/80">Inicio</span>
           </Link>
           <Link href="/tratamientos" className="flex min-w-0 flex-1 flex-col items-center gap-1">
             <Sparkles className="h-5 w-5 text-[var(--premium-gold)]" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--premium-gold)]">
-              Tratamientos
-            </span>
+            <span className="text-[9px] tracking-[0.12em] text-[var(--premium-gold)]">Tratamientos</span>
           </Link>
           <Link href="/turnos" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
             <CalendarDays className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
