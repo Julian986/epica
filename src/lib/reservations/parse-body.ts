@@ -1,7 +1,7 @@
 import {
   isValidEpicaServiceCombo,
   parseAbundantHairChoice,
-  serviceIdsIncludeLacio,
+  serviceIdsNeedAbundantHairChoice,
 } from "@/lib/treatments/abundant-hair";
 import { TREATMENT_CATEGORIES } from "@/lib/treatments/catalog";
 import type { CreateReservationInput, TreatmentCategory } from "./types";
@@ -53,12 +53,15 @@ export function parseCreateReservationBody(
     };
   }
 
-  const hasLacio = serviceIdsIncludeLacio(serviceIds);
+  const needsAbundantHair = serviceIdsNeedAbundantHairChoice(serviceIds);
   let abundantHair: CreateReservationInput["abundantHair"];
-  if (hasLacio) {
+  if (needsAbundantHair) {
     const parsed = parseAbundantHairChoice(b.abundantHair);
     if (!parsed) {
-      return { ok: false, message: "Indicá si considerás que tenés cabello abundante." };
+      return {
+        ok: false,
+        message: "Indicá si tenés mucho cabello / cabello abundante para este servicio.",
+      };
     }
     abundantHair = parsed;
   }

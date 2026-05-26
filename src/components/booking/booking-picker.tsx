@@ -19,7 +19,7 @@ import {
 import { isArgentinaPublicHoliday } from "@/lib/booking/argentina-holidays";
 import {
   buildEpicaReferencePricing,
-  serviceIdsIncludeLacio,
+  serviceIdsNeedAbundantHairChoice,
   type AbundantHairChoice,
 } from "@/lib/treatments/abundant-hair";
 import {
@@ -124,7 +124,7 @@ export function BookingPicker({
   };
 
   const referencePricingSummary = useMemo(() => {
-    if (!serviceIdsIncludeLacio(effectiveServiceIds)) return null;
+    if (effectiveServiceIds.length === 0) return null;
     return buildEpicaReferencePricing(effectiveServiceIds, abundantHair);
   }, [effectiveServiceIds, abundantHair]);
 
@@ -229,7 +229,7 @@ export function BookingPicker({
   const openTreatmentModal = () => {
     setDraft(effectiveServiceIds);
     setDraftAbundantHair(
-      serviceIdsIncludeLacio(effectiveServiceIds) ? abundantHair : "unknown",
+      serviceIdsNeedAbundantHairChoice(effectiveServiceIds) ? abundantHair : "unknown",
     );
     if (effectiveServiceIds.length > 0) {
       const resolved = resolveEpicaPickerStepForServiceIds(effectiveServiceIds);
@@ -255,10 +255,10 @@ export function BookingPicker({
 
   const commitDraft = () => {
     if (draftServiceIds.length === 0) return;
-    const hasLacio = serviceIdsIncludeLacio(draftServiceIds);
+    const needsAbundant = serviceIdsNeedAbundantHairChoice(draftServiceIds);
     if (epicaBundle) {
       applyServiceIds(draftServiceIds);
-      onAbundantHairChange?.(hasLacio ? draftAbundantHair : "unknown");
+      onAbundantHairChange?.(needsAbundant ? draftAbundantHair : "unknown");
     } else {
       onTreatmentIdChange(primaryTreatmentIdFromServiceIds(draftServiceIds));
     }

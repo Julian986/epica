@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ABUNDANT_HAIR_OPTIONS,
   ABUNDANT_HAIR_SURCHARGE_LABEL,
+  RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL,
   buildEpicaReferencePricing,
   type AbundantHairChoice,
 } from "@/lib/treatments/abundant-hair";
@@ -17,6 +18,7 @@ import {
   findSalonTreatmentById,
   isComplementarioTreatmentId,
   isLacioTreatmentId,
+  isRetoqueTreatmentId,
   type LacioVariantId,
 } from "@/lib/treatments/catalog";
 
@@ -66,7 +68,14 @@ export function EpicaServicePickerSheet({
   const referencePricing =
     selectedLacioId != null
       ? buildEpicaReferencePricing(selectedServiceIds, abundantHairChoice)
-      : null;
+      : step === "complementarios" &&
+          selectedComplementarioOnlyId &&
+          isRetoqueTreatmentId(selectedComplementarioOnlyId)
+        ? buildEpicaReferencePricing([selectedComplementarioOnlyId], abundantHairChoice)
+        : null;
+  const complementarioRetoqueSelected =
+    step === "complementarios" &&
+    Boolean(selectedComplementarioOnlyId && isRetoqueTreatmentId(selectedComplementarioOnlyId));
 
   const handleBack = () => {
     if (step === "lacio-addon") {
@@ -170,7 +179,7 @@ export function EpicaServicePickerSheet({
             >
               <p className="text-[18px] leading-tight font-heading text-[var(--soft-gray)]">Complementarios</p>
               <p className="mt-1 text-[12px] text-[var(--soft-gray)]/58">
-                Botox, retoque de raíces o lifting de cejas
+                Botox, retoque, laminado o lifting
               </p>
             </button>
           </div>
@@ -264,7 +273,7 @@ export function EpicaServicePickerSheet({
                     >
                       <span className="text-[12px] font-medium text-[var(--soft-gray)]">{opt.label}</span>
                       <span className="mt-0.5 text-[9px] leading-tight text-[var(--soft-gray)]/50">
-                        {opt.id === "yes" ? "+$10k" : opt.id === "no" ? "Base" : "Consulta"}
+                        {opt.id === "yes" ? "+$10k lacio" : opt.id === "no" ? "Base" : "Consulta"}
                       </span>
                     </button>
                   );
@@ -357,6 +366,45 @@ export function EpicaServicePickerSheet({
                 </button>
               );
             })}
+
+            {complementarioRetoqueSelected ? (
+              <div className="mt-2 rounded-2xl border border-white/8 bg-[#1a1a1a] px-3 py-2.5">
+                {referencePricing?.totalReferenceLabel ? (
+                  <p className="mb-2 text-[11px] text-[var(--premium-gold)]">
+                    Precio referencia {referencePricing.totalReferenceLabel}
+                  </p>
+                ) : null}
+                <p className="text-[12px] font-medium text-[var(--soft-gray)]">
+                  ¿Tenés mucho cabello en la zona del crecimiento?
+                </p>
+                <p className="mt-0.5 text-[10px] text-[var(--soft-gray)]/55">
+                  Puede sumarse {RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL} al retoque.
+                </p>
+                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                  {ABUNDANT_HAIR_OPTIONS.map((opt) => {
+                    const isActive = abundantHairChoice === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => onAbundantHairChange(opt.id)}
+                        className={`flex cursor-pointer flex-col items-center rounded-xl border px-1.5 py-2 text-center transition-all duration-150 ${
+                          isActive
+                            ? "border-[var(--premium-gold)] bg-[rgba(228,202,105,0.12)]"
+                            : "border-white/8 bg-[#1c1c1c] hover:bg-[#222]"
+                        }`}
+                      >
+                        <span className="text-[12px] font-medium text-[var(--soft-gray)]">{opt.label}</span>
+                        <span className="mt-0.5 text-[9px] leading-tight text-[var(--soft-gray)]/50">
+                          {opt.id === "yes" ? "+$5k" : opt.id === "no" ? "Base" : "Consulta"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
         </div>

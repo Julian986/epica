@@ -16,6 +16,7 @@ import { parseLacioVariantParam } from "@/components/booking/epica-service-picke
 import {
   buildReservationPricingSubtitle,
   serviceIdsIncludeLacio,
+  serviceIdsNeedAbundantHairChoice,
   type AbundantHairChoice,
 } from "@/lib/treatments/abundant-hair";
 import {
@@ -334,7 +335,7 @@ export default function TurnosClient({ initialTreatment = "", initialVariant = "
         subtitle: subtitleMerged,
         category: primaryService.category,
         serviceIds: selectedServiceIds,
-        ...(serviceIdsIncludeLacio(selectedServiceIds) ? { abundantHair } : {}),
+        ...(serviceIdsNeedAbundantHairChoice(selectedServiceIds) ? { abundantHair } : {}),
         dateKey: selectedDate,
         timeLocal: selectedTime,
         displayDate: formatSalonDisplayDate(selectedDate),

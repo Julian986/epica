@@ -10,7 +10,10 @@ export type HairLengthId = "corto" | "medio" | "largo";
 const PROVISIONAL_LACIO_MINUTES = 180;
 const PROVISIONAL_BOTOX_MINUTES = 60;
 const PROVISIONAL_RETOQUE_MINUTES = 180;
-const PROVISIONAL_CEJAS_MINUTES = 45;
+const PROVISIONAL_LAMINADO_MINUTES = 45;
+const PROVISIONAL_LIFTING_MINUTES = 45;
+
+export const RETOQUE_TREATMENT_ID = "retoque-raices-epica";
 
 export const HAIR_LENGTH_OPTIONS: {
   id: HairLengthId;
@@ -123,32 +126,47 @@ export const SALON_TREATMENTS: SalonTreatment[] = [
     priceLabel: "$70.000",
   },
   {
-    id: "retoque-raices-epica",
+    id: RETOQUE_TREATMENT_ID,
     name: "Retoque de Raíces Épica",
-    subtitle: "Crecimiento · Precio y duración a confirmar",
+    subtitle: "Crecimiento · $75.000",
     description:
       "Mantiene tu lacio en el crecimiento: raíces, Photon y nanoterapia. Solo si pasaron menos de 6 meses desde tu último alisado (sujeto a diagnóstico).",
     category: "Complementarios",
     durationLabel: "A confirmar",
     durationMinutes: PROVISIONAL_RETOQUE_MINUTES,
     imageUrl: "/servicios_epica.jpeg",
-    priceLabel: "A confirmar",
+    priceLabel: "$75.000",
   },
   {
-    id: "lifting-laminado-cejas-epica",
-    name: "Lifting & Laminado de Cejas Épica",
-    subtitle: "Diseño y fijación · $35.000",
+    id: "laminado-cejas-epica",
+    name: "Laminado de Cejas Épica",
+    subtitle: "Diseño y fijación · $20.000",
     description:
-      "Diseño y fijación de cejas para lograr un efecto prolijo, natural y duradero. Realza la mirada.",
+      "Alisa, ordena y fija el vello de las cejas para un efecto prolijo, natural y duradero.",
     category: "Complementarios",
     durationLabel: "A confirmar",
-    durationMinutes: PROVISIONAL_CEJAS_MINUTES,
+    durationMinutes: PROVISIONAL_LAMINADO_MINUTES,
     imageUrl: "/servicios_epica.jpeg",
-    priceLabel: "$35.000",
+    priceLabel: "$20.000",
+  },
+  {
+    id: "lifting-pestanas-epica",
+    name: "Lifting de Pestañas Épica",
+    subtitle: "Elevación natural · $25.000",
+    description:
+      "Eleva y curva las pestañas naturales desde la raíz para una mirada más abierta y definida.",
+    category: "Complementarios",
+    durationLabel: "A confirmar",
+    durationMinutes: PROVISIONAL_LIFTING_MINUTES,
+    imageUrl: "/servicios_epica.jpeg",
+    priceLabel: "$25.000",
   },
 ];
 
+/** Recargo cabello abundante en alisados (lacio). */
 export const ABUNDANT_HAIR_SURCHARGE_LABEL = "+ $10.000";
+/** Recargo mucho cabello en retoque de raíces. */
+export const RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL = "+ $5.000";
 
 export function findSalonTreatmentByName(name: string): SalonTreatment | undefined {
   const t = name.trim();
@@ -173,6 +191,15 @@ export function isLacioTreatmentId(id: string): boolean {
 
 export function isComplementarioTreatmentId(id: string): boolean {
   return findSalonTreatmentById(id)?.category === "Complementarios";
+}
+
+export function isRetoqueTreatmentId(id: string): boolean {
+  return id === RETOQUE_TREATMENT_ID;
+}
+
+/** Alisado o retoque: la clienta indica cabello abundante (montos distintos). */
+export function serviceIdsNeedAbundantHairChoice(ids: string[]): boolean {
+  return ids.some(isLacioTreatmentId) || ids.some(isRetoqueTreatmentId);
 }
 
 /** Máximo 1 lacio + 1 complementario, en ese orden. */

@@ -35,6 +35,7 @@ import {
 } from "@/lib/content/yoe-guides";
 import {
   LACIO_VARIANT_OPTIONS,
+  RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL,
   findSalonTreatmentById,
   listLacioTreatmentsByVariant,
   type LacioVariantId,
@@ -86,7 +87,8 @@ function TreatmentsPageContent() {
 
   const botoxTreatment = findSalonTreatmentById("botox-capilar-epica");
   const retoqueTreatment = findSalonTreatmentById("retoque-raices-epica");
-  const miradaTreatment = findSalonTreatmentById("lifting-laminado-cejas-epica");
+  const laminadoTreatment = findSalonTreatmentById("laminado-cejas-epica");
+  const liftingTreatment = findSalonTreatmentById("lifting-pestanas-epica");
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
@@ -100,7 +102,7 @@ function TreatmentsPageContent() {
 
         <p className="mb-3 text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/85">
           Los precios pueden ajustarse según diagnóstico de largo, cantidad y estado del cabello.
-          Cabello abundante: + $10.000 en alisados.
+          Cabello abundante: + $10.000 en alisados · mucho cabello en retoque: + $5.000.
         </p>
 
         <section className="mb-2 flex items-center gap-2 overflow-x-auto pb-1">
@@ -280,6 +282,9 @@ function TreatmentsPageContent() {
               </article>
             ) : null}
 
+            <p className="text-center text-[11px] text-[var(--soft-gray)]/65">
+              Mucho cabello: {RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL}
+            </p>
             <ReserveButton href="/turnos?treatment=retoque-raices-epica" />
             <p className="text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/65">
               Al reservar un turno también podés elegirlo en{" "}
@@ -297,25 +302,36 @@ function TreatmentsPageContent() {
               </div>
             </GuidePanel>
 
-            {miradaTreatment ? (
-              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
-                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
-                  <div className="relative z-10 flex h-full items-center justify-center">
-                    <Eye className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
+            {[laminadoTreatment, liftingTreatment].map((service) =>
+              service ? (
+                <article
+                  key={service.id}
+                  className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+                >
+                  <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
+                    <div className="relative z-10 flex h-full items-center justify-center">
+                      <Eye className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
+                    </div>
                   </div>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
-                  <h2 className="text-[17px] leading-tight font-heading">{miradaTreatment.name}</h2>
-                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{miradaTreatment.priceLabel}</p>
-                  <p className="mt-1 text-[10px] leading-snug text-[var(--soft-gray)]/65">
-                    Incluye laminado de cejas y lifting de pestañas según diagnóstico.
-                  </p>
-                </div>
-              </article>
-            ) : null}
-
-            <ReserveButton href="/turnos?treatment=lifting-laminado-cejas-epica" />
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 px-3 py-3">
+                    <div>
+                      <h2 className="text-[17px] leading-tight font-heading">{service.name}</h2>
+                      <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{service.priceLabel}</p>
+                      <p className="mt-1 text-[10px] leading-snug text-[var(--soft-gray)]/65">
+                        {service.description}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/turnos?treatment=${encodeURIComponent(service.id)}`}
+                      className="flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
+                    >
+                      Reservar
+                    </Link>
+                  </div>
+                </article>
+              ) : null,
+            )}
 
             <Link
               href="/tratamientos/experiencia-mirada"

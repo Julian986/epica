@@ -7,7 +7,8 @@ export default function ExperienciaMiradaGuidePage() {
       content={YOE_GUIDE_MIRADA}
       prepContent={YOE_PROTOCOLO_PREPARACION_MIRADA}
       backHref="/tratamientos?familia=mirada"
-      reserveHref="/turnos?treatment=lifting-laminado-cejas-epica"
+      cta={{ href: "/turnos?treatment=laminado-cejas-epica", label: "Reservar laminado — $20.000" }}
+      secondaryCta={{ href: "/turnos?treatment=lifting-pestanas-epica", label: "Reservar lifting — $25.000" }}
     />
   );
 }

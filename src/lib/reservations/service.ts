@@ -15,7 +15,7 @@ import { reservationWouldExceedSalonCapacity, slotIntervalMs } from "@/lib/booki
 import {
   buildEpicaReferencePricing,
   buildReservationPricingSubtitle,
-  serviceIdsIncludeLacio,
+  serviceIdsNeedAbundantHairChoice,
 } from "@/lib/treatments/abundant-hair";
 import {
   findSalonTreatmentById,
@@ -241,9 +241,7 @@ export async function insertPendingReservation(
   const subtitleCombo = `${serviceItems.length} servicios · ${totalDurationMinutes} min`;
   const serviceIdsForPricing = serviceItems.map((s) => s.treatmentId);
   const pricingExtra = buildReservationPricingSubtitle(serviceIdsForPricing, input.abundantHair);
-  const refPricing = serviceIdsIncludeLacio(serviceIdsForPricing)
-    ? buildEpicaReferencePricing(serviceIdsForPricing, input.abundantHair ?? "unknown")
-    : null;
+  const refPricing = buildEpicaReferencePricing(serviceIdsForPricing, input.abundantHair ?? "unknown");
   const baseSubtitle = isCombo ? subtitleCombo : primaryTreatment.subtitle;
   const subtitleMerged = pricingExtra ? `${baseSubtitle} · ${pricingExtra}` : baseSubtitle;
 
@@ -271,11 +269,9 @@ export async function insertPendingReservation(
     updatedAt: now,
     checkoutToken,
     paymentDeadlineAt,
-    ...(serviceIdsIncludeLacio(serviceIdsForPricing) && input.abundantHair
-      ? {
-          abundantHair: input.abundantHair,
-          referencePriceLabel: refPricing?.totalReferenceLabel ?? null,
-        }
+    ...(refPricing.totalReferenceLabel ? { referencePriceLabel: refPricing.totalReferenceLabel } : {}),
+    ...(serviceIdsNeedAbundantHairChoice(serviceIdsForPricing) && input.abundantHair
+      ? { abundantHair: input.abundantHair }
       : {}),
   } satisfies Omit<ReservationDoc, "_id" | "externalReference" | "preferenceId" | "mpPaymentId">;
 
@@ -316,9 +312,7 @@ export async function insertPublicConfirmedReservationWithoutPayment(
   const subtitleCombo = `${serviceItems.length} servicios · ${totalDurationMinutes} min`;
   const serviceIdsForPricing = serviceItems.map((s) => s.treatmentId);
   const pricingExtra = buildReservationPricingSubtitle(serviceIdsForPricing, input.abundantHair);
-  const refPricing = serviceIdsIncludeLacio(serviceIdsForPricing)
-    ? buildEpicaReferencePricing(serviceIdsForPricing, input.abundantHair ?? "unknown")
-    : null;
+  const refPricing = buildEpicaReferencePricing(serviceIdsForPricing, input.abundantHair ?? "unknown");
   const baseSubtitle = isCombo ? subtitleCombo : primaryTreatment.subtitle;
   const subtitleMerged = pricingExtra ? `${baseSubtitle} · ${pricingExtra}` : baseSubtitle;
 
@@ -343,11 +337,9 @@ export async function insertPublicConfirmedReservationWithoutPayment(
     paymentStatus: "not_required" as const,
     source: "app_turnos" as const,
     createdAt: now,
-    ...(serviceIdsIncludeLacio(serviceIdsForPricing) && input.abundantHair
-      ? {
-          abundantHair: input.abundantHair,
-          referencePriceLabel: refPricing?.totalReferenceLabel ?? null,
-        }
+    ...(refPricing.totalReferenceLabel ? { referencePriceLabel: refPricing.totalReferenceLabel } : {}),
+    ...(serviceIdsNeedAbundantHairChoice(serviceIdsForPricing) && input.abundantHair
+      ? { abundantHair: input.abundantHair }
       : {}),
     updatedAt: now,
   } satisfies Omit<

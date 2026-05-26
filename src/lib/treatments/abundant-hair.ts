@@ -1,13 +1,21 @@
 import {
   ABUNDANT_HAIR_SURCHARGE_LABEL,
+  RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL,
   findSalonTreatmentById,
   isComplementarioTreatmentId,
   isLacioTreatmentId,
+  isRetoqueTreatmentId,
+  serviceIdsNeedAbundantHairChoice,
 } from "@/lib/treatments/catalog";
 
-export { ABUNDANT_HAIR_SURCHARGE_LABEL } from "@/lib/treatments/catalog";
+export {
+  ABUNDANT_HAIR_SURCHARGE_LABEL,
+  RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL,
+  serviceIdsNeedAbundantHairChoice,
+} from "@/lib/treatments/catalog";
 
 export const ABUNDANT_HAIR_SURCHARGE_ARS = 10_000;
+export const RETOQUE_ABUNDANT_HAIR_SURCHARGE_ARS = 5_000;
 
 export type AbundantHairChoice = "no" | "yes" | "unknown";
 
@@ -16,8 +24,8 @@ export const ABUNDANT_HAIR_OPTIONS: {
   label: string;
   hint: string;
 }[] = [
-  { id: "no", label: "No", hint: "Precio según largo elegido" },
-  { id: "yes", label: "Sí", hint: `Sumá ${ABUNDANT_HAIR_SURCHARGE_LABEL} al lacio` },
+  { id: "no", label: "No", hint: "Precio base del servicio" },
+  { id: "yes", label: "Sí", hint: "Se suma recargo según servicio" },
   { id: "unknown", label: "No estoy segura", hint: "Lo evaluamos en consulta" },
 ];
 
@@ -66,10 +74,15 @@ export function buildEpicaReferencePricing(
   const compId = serviceIds.find(isComplementarioTreatmentId);
   const lacio = lacioId ? findSalonTreatmentById(lacioId) : undefined;
   const comp = compId ? findSalonTreatmentById(compId) : undefined;
+  const hasRetoque = serviceIds.some(isRetoqueTreatmentId);
 
   const lacioBaseLabel = lacio?.priceLabel ?? null;
   const complementarioLabel = comp?.priceLabel ?? null;
-  const surchargeLabel = abundantHair === "yes" ? ABUNDANT_HAIR_SURCHARGE_LABEL : null;
+
+  const surchargeParts: string[] = [];
+  if (lacioId && abundantHair === "yes") surchargeParts.push(ABUNDANT_HAIR_SURCHARGE_LABEL);
+  if (hasRetoque && abundantHair === "yes") surchargeParts.push(RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL);
+  const surchargeLabel = surchargeParts.length > 0 ? surchargeParts.join(" · ") : null;
 
   let total: number | null = null;
   if (lacio) {
@@ -81,18 +94,30 @@ export function buildEpicaReferencePricing(
   if (comp) {
     const compAmount = parsePriceLabelArs(comp.priceLabel);
     if (compAmount != null) {
-      total = (total ?? 0) + compAmount;
+      let compTotal = compAmount;
+      if (isRetoqueTreatmentId(comp.id) && abundantHair === "yes") {
+        compTotal += RETOQUE_ABUNDANT_HAIR_SURCHARGE_ARS;
+      }
+      total = (total ?? 0) + compTotal;
     }
   }
 
   const totalReferenceLabel = total != null ? formatPriceLabelArs(total) : null;
 
   let abundantHairNote: string | null = null;
-  if (lacioId) {
-    if (abundantHair === "yes") {
-      abundantHairNote = "Incluye recargo por cabello abundante (referencia).";
-    } else if (abundantHair === "unknown") {
-      abundantHairNote = "Cabello abundante: a confirmar en consulta (+ $10.000 si aplica).";
+  if (abundantHair === "yes") {
+    if (lacioId && hasRetoque) {
+      abundantHairNote = "Incluye recargo por cabello abundante en lacio y retoque (referencia).";
+    } else if (lacioId) {
+      abundantHairNote = "Incluye recargo por cabello abundante en alisado (referencia).";
+    } else if (hasRetoque) {
+      abundantHairNote = "Incluye recargo por mucho cabello en retoque (referencia).";
+    }
+  } else if (abundantHair === "unknown") {
+    if (lacioId) {
+      abundantHairNote = `Cabello abundante en alisado: a confirmar (+ ${ABUNDANT_HAIR_SURCHARGE_LABEL.replace("+ ", "")} si aplica).`;
+    } else if (hasRetoque) {
+      abundantHairNote = `Mucho cabello en retoque: a confirmar (+ ${RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL.replace("+ ", "")} si aplica).`;
     }
   }
 
@@ -109,7 +134,6 @@ export function buildReservationPricingSubtitle(
   serviceIds: string[],
   abundantHair: AbundantHairChoice | undefined,
 ): string | null {
-  if (!serviceIdsIncludeLacio(serviceIds)) return null;
   const choice = abundantHair ?? "unknown";
   const p = buildEpicaReferencePricing(serviceIds, choice);
   const parts: string[] = [];
@@ -120,7 +144,7 @@ export function buildReservationPricingSubtitle(
 
 export function abundantHairLabelForPanel(choice: AbundantHairChoice | undefined): string | null {
   if (!choice) return null;
-  if (choice === "yes") return "Cabello abundante: sí (+ $10.000 ref.)";
-  if (choice === "no") return "Cabello abundante: no";
+  if (choice === "yes") return "Cabello abundante / mucho cabello: sí (recargo ref.)";
+  if (choice === "no") return "Cabello abundante / mucho cabello: no";
   return "Cabello abundante: a confirmar en salón";
 }

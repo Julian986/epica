@@ -21,6 +21,7 @@ type TreatmentGuidePageProps = {
   /** @deprecated Usar `cta` */
   reserveHref?: string;
   cta?: GuidePageCta;
+  secondaryCta?: GuidePageCta;
 };
 
 export function TreatmentGuidePage({
@@ -30,9 +31,26 @@ export function TreatmentGuidePage({
   backLabel = "Servicios",
   reserveHref,
   cta,
+  secondaryCta,
 }: TreatmentGuidePageProps) {
   const primaryCta: GuidePageCta | undefined =
     cta ?? (reserveHref ? { href: reserveHref, label: "Reservar turno" } : undefined);
+
+  const renderCta = (action: GuidePageCta, className?: string) =>
+    action.external ? (
+      <a
+        href={action.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {action.label}
+      </a>
+    ) : (
+      <Link href={action.href} className={className}>
+        {action.label}
+      </Link>
+    );
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
@@ -52,25 +70,20 @@ export function TreatmentGuidePage({
           {prepContent ? <YoePrepSection content={prepContent} /> : null}
         </div>
 
-        {primaryCta ? (
+        {primaryCta || secondaryCta ? (
           <div className="mt-8 space-y-3">
-            {primaryCta.external ? (
-              <a
-                href={primaryCta.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]"
-              >
-                {primaryCta.label}
-              </a>
-            ) : (
-              <Link
-                href={primaryCta.href}
-                className="flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]"
-              >
-                {primaryCta.label}
-              </Link>
-            )}
+            {primaryCta
+              ? renderCta(
+                  primaryCta,
+                  "flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]",
+                )
+              : null}
+            {secondaryCta
+              ? renderCta(
+                  secondaryCta,
+                  "flex h-11 w-full items-center justify-center rounded-full border border-white/10 bg-[#1a1a1a] text-[14px] font-medium text-[var(--soft-gray)]",
+                )
+              : null}
           </div>
         ) : null}
       </main>
