@@ -29,3 +29,7 @@ body {
 .font-heading {
   font-family: var(--font-playfair), serif;
 }
+
+.font-montserrat {
+  font-family: var(--font-montserrat), sans-serif;
+}
