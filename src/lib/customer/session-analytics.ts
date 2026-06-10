@@ -135,7 +135,6 @@ export async function logCustomerDailyActive(
           firstSeenAt: at,
           firstSeenAtBsAs: atBsAs,
           firstSource: input.source,
-          ...(name ? { customerName: name } : {}),
         },
         $set: {
           lastSeenAt: at,

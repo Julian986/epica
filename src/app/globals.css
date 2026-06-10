@@ -9,6 +9,12 @@
   --accent-orange: #ce7832;
   /* Texto sobre botones rellenos en tono dorado */
   --on-accent: #1f1814;
+  /* Tema claro (wizard /turnos, panel) */
+  --surface-light: #f8f6f2;
+  --surface-card: #ffffff;
+  --text-primary: #1e1e1e;
+  --text-secondary: #666666;
+  --border-light: #e5e5e5;
 }
 
 @theme inline {
@@ -32,4 +38,14 @@ body {
 
 .font-montserrat {
   font-family: var(--font-montserrat), sans-serif;
+}
+
+.app-bottom-nav__icon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.app-bottom-nav__label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
 }

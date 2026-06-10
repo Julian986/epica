@@ -68,6 +68,8 @@ export type BookingPickerProps = {
   onServiceIdsChange?: (ids: string[]) => void;
   abundantHair?: AbundantHairChoice;
   onAbundantHairChange?: (choice: AbundantHairChoice) => void;
+  /** En wizard /turnos: solo calendario o solo horarios. */
+  wizardSection?: "date" | "time";
 };
 
 export function BookingPicker({
@@ -99,7 +101,9 @@ export function BookingPicker({
   onServiceIdsChange,
   abundantHair = "unknown",
   onAbundantHairChange,
+  wizardSection,
 }: BookingPickerProps) {
+  const isLight = Boolean(wizardSection);
   const epicaBundle = Boolean(onServiceIdsChange);
   const effectiveServiceIds = epicaBundle
     ? selectedServiceIds
@@ -302,8 +306,15 @@ export function BookingPicker({
     closeTreatmentModal();
   };
 
+  const todayKey = (() => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  })();
+
   return (
     <>
+      {!wizardSection ? (
       <section className="space-y-2">
         <button
           type="button"
@@ -374,19 +385,33 @@ export function BookingPicker({
           <ChevronRight className="h-4 w-4 rotate-90 text-[var(--soft-gray)]/60" strokeWidth={1.8} />
         </div>
       </section>
+      ) : null}
 
-      <section className="mt-4 overflow-hidden rounded-[24px] border border-white/8 bg-[#e4c48f] p-3 text-[#2c241b] shadow-[0_12px_26px_rgba(0,0,0,0.36)]">
+      {(wizardSection === undefined || wizardSection === "date") && (
+      <section
+        className={
+          isLight
+            ? "mt-4 overflow-hidden rounded-[24px] border border-[var(--border-light)] bg-[var(--surface-card)] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
+            : "mt-4 overflow-hidden rounded-[24px] border border-white/8 bg-[#e4c48f] p-3 text-[#2c241b] shadow-[0_12px_26px_rgba(0,0,0,0.36)]"
+        }
+      >
         <div className="mb-3 flex items-center justify-between">
           <button
             type="button"
             onClick={() =>
               setVisibleMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))
             }
-            className="cursor-pointer rounded-lg p-1 text-[#7f6a45] hover:bg-black/10"
+            className={`cursor-pointer rounded-lg p-2 ${
+              isLight ? "text-[var(--text-primary)] hover:bg-[var(--surface-light)]" : "p-1 text-[#7f6a45] hover:bg-black/10"
+            }`}
           >
-            <ChevronLeft className="h-4 w-4" strokeWidth={1.8} />
+            <ChevronLeft className={isLight ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.8} />
           </button>
-          <h2 className="flex items-center gap-2 text-[18px] leading-none font-heading">
+          <h2
+            className={`flex items-center gap-2 leading-none font-heading ${
+              isLight ? "text-[20px] font-bold text-[var(--text-primary)]" : "text-[18px]"
+            }`}
+          >
             {visibleMonthLabel}
             {hasServiceSelection && monthAvailability === null ? (
               <span
@@ -400,9 +425,11 @@ export function BookingPicker({
             onClick={() =>
               setVisibleMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))
             }
-            className="cursor-pointer rounded-lg p-1 text-[#7f6a45] hover:bg-black/10"
+            className={`cursor-pointer rounded-lg p-2 ${
+              isLight ? "text-[var(--text-primary)] hover:bg-[var(--surface-light)]" : "p-1 text-[#7f6a45] hover:bg-black/10"
+            }`}
           >
-            <ChevronRight className="h-4 w-4" strokeWidth={1.8} />
+            <ChevronRight className={isLight ? "h-5 w-5" : "h-4 w-4"} strokeWidth={1.8} />
           </button>
         </div>
 
@@ -410,10 +437,14 @@ export function BookingPicker({
           <p
             role="status"
             aria-live="polite"
-            className="mb-2 rounded-xl border border-[#8a7548]/55 bg-[#fff9ec]/97 px-3 py-2.5 text-center text-[12px] leading-snug text-[#2c241b] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]"
+            className={
+              isLight
+                ? "mb-3 rounded-xl border border-[var(--premium-gold)]/40 bg-[var(--premium-gold)]/10 px-4 py-3 text-center text-[16px] leading-snug text-[var(--text-primary)]"
+                : "mb-2 rounded-xl border border-[#8a7548]/55 bg-[#fff9ec]/97 px-3 py-2.5 text-center text-[12px] leading-snug text-[#2c241b] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]"
+            }
           >
             <span className="font-semibold">Primero elegí un servicio</span>
-            <span className="text-[#3b3224]"> (paso 1) para poder elegir el día.</span>
+            <span> (paso 1) para poder elegir el día.</span>
           </p>
         ) : null}
 
@@ -422,12 +453,20 @@ export function BookingPicker({
           aria-busy={Boolean(hasServiceSelection && monthAvailability === null)}
         >
           {salonWeekdayLabels.map((label) => (
-            <div key={label} className="text-[10px] tracking-[0.08em] text-[#7f7364]">
+            <div
+              key={label}
+              className={
+                isLight
+                  ? "text-[16px] font-semibold tracking-[0.04em] text-[var(--text-secondary)]"
+                  : "text-[10px] tracking-[0.08em] text-[#7f7364]"
+              }
+            >
               {label}
             </div>
           ))}
           {calendarItems.map((day) => {
             const isSelected = day.value === selectedDate;
+            const isToday = day.value === todayKey && day.isCurrentMonth;
             const monthAvailReady = monthAvailability !== undefined && monthAvailability !== null;
             const fullyBooked =
               Boolean(hasServiceSelection) &&
@@ -436,6 +475,32 @@ export function BookingPicker({
               day.isAvailable &&
               monthAvailability[day.value] === false;
             const isDisabled = !day.isCurrentMonth || !day.isAvailable || fullyBooked;
+
+            const dayClass = isLight
+              ? `mx-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border text-[16px] font-semibold transition-all disabled:cursor-not-allowed ${
+                  isSelected
+                    ? "border-[var(--premium-gold)] bg-[var(--premium-gold)] text-[var(--on-accent)] shadow-[0_4px_12px_rgba(228,202,105,0.35)]"
+                    : fullyBooked
+                      ? "border-[var(--border-light)] bg-[var(--surface-light)] text-[var(--text-secondary)] line-through"
+                      : !day.isCurrentMonth
+                        ? "border-transparent text-[var(--text-secondary)]/35"
+                        : day.isAvailable
+                          ? isToday
+                            ? "border-[var(--premium-gold)]/50 bg-[var(--premium-gold)]/12 text-[var(--text-primary)]"
+                            : "border-[var(--border-light)] bg-white text-[var(--text-primary)] hover:border-[var(--premium-gold)]/40"
+                          : "border-transparent text-[var(--text-secondary)]/45"
+                }`
+              : `mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[12px] transition-colors disabled:cursor-not-allowed ${
+                  isSelected
+                    ? "bg-[#1a1a1a] text-[#c89b56] shadow-[0_6px_14px_rgba(0,0,0,0.25)]"
+                    : fullyBooked
+                      ? "bg-[#c9b89a]/55 text-[#5c4f3d] line-through decoration-[#6b5a45]"
+                      : !day.isCurrentMonth
+                        ? "text-[#cfbea8]/45"
+                        : day.isAvailable
+                          ? "bg-[#eed7ae] text-[#3b2f22]"
+                          : "text-[#897a67]"
+                }`;
 
             return (
               <button
@@ -457,7 +522,7 @@ export function BookingPicker({
                       : undefined
                 }
                 onClick={() => {
-                  if (!selectedTreatment) {
+                  if (!hasServiceSelection) {
                     onTreatmentFirstHintVisible(true);
                     return;
                   }
@@ -470,17 +535,7 @@ export function BookingPicker({
                     });
                   });
                 }}
-                className={`mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[12px] transition-colors disabled:cursor-not-allowed ${
-                  isSelected
-                    ? "bg-[#1a1a1a] text-[#c89b56] shadow-[0_6px_14px_rgba(0,0,0,0.25)]"
-                    : fullyBooked
-                      ? "bg-[#c9b89a]/55 text-[#5c4f3d] line-through decoration-[#6b5a45]"
-                      : !day.isCurrentMonth
-                        ? "text-[#cfbea8]/45"
-                        : day.isAvailable
-                          ? "bg-[#eed7ae] text-[#3b2f22]"
-                          : "text-[#897a67]"
-                }`}
+                className={dayClass}
               >
                 {day.dayNumber}
               </button>
@@ -488,9 +543,12 @@ export function BookingPicker({
           })}
         </div>
       </section>
+      )}
 
-      <div ref={bookingFocusRef} className="mt-4">
+      {(wizardSection === undefined || wizardSection === "time") && (
+      <div ref={bookingFocusRef} className={wizardSection ? "" : "mt-4"}>
         <section>
+          {!wizardSection ? (
           <div
             className={`flex items-center justify-between rounded-2xl border bg-[#171717] px-4 py-3 transition-all ${
               activeStep === 3
@@ -512,10 +570,17 @@ export function BookingPicker({
             </div>
             <ChevronRight className="h-4 w-4 text-[var(--soft-gray)]/60" strokeWidth={1.8} />
           </div>
+          ) : null}
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className={`grid grid-cols-2 gap-3 ${wizardSection ? "" : "mt-4"}`}>
             {slotsLoading ? (
-              <div className="col-span-2 rounded-2xl border border-white/8 bg-[#171717] px-4 py-5 text-center text-[13px] text-[var(--soft-gray)]/68">
+              <div
+                className={`col-span-2 rounded-2xl border px-4 py-6 text-center text-[16px] ${
+                  isLight
+                    ? "border-[var(--border-light)] bg-[var(--surface-light)] text-[var(--text-secondary)]"
+                    : "border-white/8 bg-[#171717] py-5 text-[13px] text-[var(--soft-gray)]/68"
+                }`}
+              >
                 Cargando horarios…
               </div>
             ) : availableTimes.length > 0 ? (
@@ -526,10 +591,14 @@ export function BookingPicker({
                     key={time}
                     type="button"
                     onClick={() => onTimeChange(time)}
-                    className={`h-11 cursor-pointer rounded-xl border text-[16px] transition-colors ${
+                    className={`h-12 cursor-pointer rounded-xl border text-[16px] font-semibold transition-colors ${
                       isActive
-                        ? "border-[var(--premium-gold)] bg-[rgba(206,120,50,0.14)] text-[var(--premium-gold)]"
-                        : "border-white/8 bg-[#151515] text-[var(--soft-gray)]"
+                        ? isLight
+                          ? "border-[var(--premium-gold)] bg-[var(--premium-gold)] text-[var(--on-accent)] shadow-[0_4px_12px_rgba(228,202,105,0.35)]"
+                          : "border-[var(--premium-gold)] bg-[rgba(206,120,50,0.14)] text-[var(--premium-gold)]"
+                        : isLight
+                          ? "border-[var(--border-light)] bg-white text-[var(--text-primary)] hover:border-[var(--premium-gold)]/40"
+                          : "border-white/8 bg-[#151515] text-[var(--soft-gray)]"
                     }`}
                   >
                     {time}
@@ -540,35 +609,39 @@ export function BookingPicker({
               <div
                 className={`col-span-2 rounded-2xl border px-4 py-5 text-center ${
                   selectedDate
-                    ? "border-amber-500/35 bg-amber-950/20"
-                    : bookingContext === "panel"
-                      ? "border-white/8 bg-[#171717]"
-                      : "border-[var(--premium-gold)]/35 bg-[rgba(206,120,50,0.14)]"
+                    ? isLight
+                      ? "border-amber-200 bg-amber-50"
+                      : "border-amber-500/35 bg-amber-950/20"
+                    : isLight
+                      ? "border-[var(--border-light)] bg-[var(--surface-light)]"
+                      : bookingContext === "panel"
+                        ? "border-white/8 bg-[#171717]"
+                        : "border-[var(--premium-gold)]/35 bg-[rgba(206,120,50,0.14)]"
                 }`}
               >
                 {selectedDate ? (
                   <>
-                    <p className="text-[13px] font-medium text-amber-100/95">
+                    <p className={`text-[16px] font-medium ${isLight ? "text-amber-900" : "text-[13px] text-amber-100/95"}`}>
                       {isSelectedDateHoliday
-                        ? "Feriado (cerrado): no hay horarios disponibles para este dia."
-                        : "No hay horarios disponibles para este dia."}
+                        ? "Feriado (cerrado): no hay horarios disponibles para este día."
+                        : "No hay horarios disponibles para este día."}
                     </p>
-                    <p className="mt-1 text-[12px] text-amber-100/75">
+                    <p className={`mt-1 ${isLight ? "text-[16px] text-amber-800" : "text-[12px] text-amber-100/75"}`}>
                       {isSelectedDateHoliday
-                        ? "Elegi otra fecha habilitada para ver turnos disponibles."
-                        : "Proba con otra fecha para ver turnos disponibles."}
+                        ? "Elegí otra fecha habilitada para ver turnos disponibles."
+                        : "Probá con otra fecha para ver turnos disponibles."}
                     </p>
                   </>
                 ) : bookingContext === "panel" ? (
-                  <p className="text-[13px] text-[var(--soft-gray)]/72">
+                  <p className={`${isLight ? "text-[16px] text-[var(--text-secondary)]" : "text-[13px] text-[var(--soft-gray)]/72"}`}>
                     Elegí una fecha para ver los horarios disponibles.
                   </p>
                 ) : (
                   <>
-                    <p className="text-[13px] font-medium text-[var(--premium-gold)]">
+                    <p className={`font-medium ${isLight ? "text-[16px] text-[var(--text-primary)]" : "text-[13px] text-[var(--premium-gold)]"}`}>
                       Los turnos web se reservan a partir de mañana (no el mismo día).
                     </p>
-                    <p className="mt-1 text-[12px] text-[var(--soft-gray)]/88">
+                    <p className={`mt-1 ${isLight ? "text-[16px] text-[var(--text-secondary)]" : "text-[12px] text-[var(--soft-gray)]/88"}`}>
                       Elegí una fecha desde mañana para ver horarios.
                     </p>
                   </>
@@ -578,8 +651,9 @@ export function BookingPicker({
           </div>
         </section>
       </div>
+      )}
 
-      {isTreatmentModalOpen ? (
+      {!wizardSection && isTreatmentModalOpen ? (
         <EpicaServicePickerSheet
           step={pickerStep}
           pendingLacioVariant={pendingLacioVariant}
