@@ -1,6 +1,6 @@
 import { formatInTimeZone } from "date-fns-tz";
 
-import { filterSlotsServiceEndsOnOrBeforeClose, getAvailableTimesForDate } from "@/lib/booking/salon-availability";
+import { filterSlotsServiceEndsOnOrBeforeClose, resolveSalonSlotStarts, type SalonDayOverrideRef } from "@/lib/booking/salon-availability";
 import { filterPublicSlotsByTreatmentRules } from "@/lib/booking/treatment-slot-rules";
 import { findSalonTreatmentById } from "@/lib/treatments/catalog";
 
@@ -28,10 +28,13 @@ export function minPublicBookableDateKey(now = new Date()): string {
 }
 
 /** Horarios visibles para usuarios web: solo desde mañana en adelante. */
-export function getPublicBookableTimeSlots(dateKey: string, now = new Date()): string[] {
+export function getPublicBookableTimeSlots(
+  dateKey: string,
+  now = new Date(),
+  dayOverride?: SalonDayOverrideRef | null,
+): string[] {
   if (dateKey < minPublicBookableDateKey(now)) return [];
-  const raw = getAvailableTimesForDate(dateKey);
-  return raw;
+  return resolveSalonSlotStarts(dateKey, dayOverride ?? null);
 }
 
 /**

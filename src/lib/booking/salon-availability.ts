@@ -27,20 +27,35 @@ export const SALON_TREATMENT_OPTIONS: SalonTreatmentOption[] = SALON_TREATMENTS.
  */
 export const SALON_LAST_SERVICE_END_MINUTES = 20 * 60 + 30;
 
-/** Inicios fijos de turno (Yoe, may 2026). */
+/** Inicios fijos de turno (Yoe, jun 2026). */
 const EPICA_SLOTS_TUE_WED_THU = ["10:00", "13:30"] as const;
 const EPICA_SLOTS_MON_FRI = ["10:00", "13:30", "17:00"] as const;
+const EPICA_SLOTS_SAT = ["08:30", "12:30"] as const;
+
+/** Duración típica de turno lacio (~3 h 30) para presets de bloqueo. */
+export const EPICA_DEFAULT_TURN_DURATION_MINUTES = 210;
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
 
 function hhmmToMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
 }
 
+function minutesToHhmm(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${pad2(h)}:${pad2(m)}`;
+}
+
 /**
  * Agenda ÉPICA (ART), según Yoe:
  * - Mar, mié y jue: 10:00 y 13:30
  * - Lun y vie: 10:00, 13:30 y 17:00
- * - Dom y sáb: sin turnos por ahora
+ * - Sáb: 08:30 y 12:30
+ * - Dom: cerrado
  */
 const availableTimesByWeekday: Record<number, string[]> = {
   0: [],
@@ -49,8 +64,38 @@ const availableTimesByWeekday: Record<number, string[]> = {
   3: [...EPICA_SLOTS_TUE_WED_THU],
   4: [...EPICA_SLOTS_TUE_WED_THU],
   5: [...EPICA_SLOTS_MON_FRI],
-  6: [],
+  6: [...EPICA_SLOTS_SAT],
 };
+
+/** Slots de inicio por día de semana / override (sin filtrar feriados ni pasado). */
+export function getEpicaSlotStartsForDate(dateKey: string): string[] {
+  const override = availableTimesByDateOverride[dateKey];
+  if (override) return override;
+  const date = parseDateKey(dateKey);
+  return availableTimesByWeekday[date.getDay()] ?? [];
+}
+
+export type EpicaTurnPreset = { start: string; end: string; label: string };
+
+export function getEpicaTurnPresetsForDate(dateKey: string): EpicaTurnPreset[] {
+  const slots = getEpicaSlotStartsForDate(dateKey);
+  return slots.map((start, i) => ({
+    start,
+    end: minutesToHhmm(hhmmToMinutes(start) + EPICA_DEFAULT_TURN_DURATION_MINUTES),
+    label: slots.length > 1 ? `Turno ${i + 1} (${start})` : `Turno (${start})`,
+  }));
+}
+
+export function getEpicaFullDayBlockForDate(dateKey: string): { start: string; end: string } | null {
+  const slots = getEpicaSlotStartsForDate(dateKey);
+  if (slots.length === 0) return null;
+  const start = slots[0];
+  const last = slots[slots.length - 1];
+  return {
+    start,
+    end: minutesToHhmm(hhmmToMinutes(last) + EPICA_DEFAULT_TURN_DURATION_MINUTES),
+  };
+}
 
 /** Quita inicios donde el servicio pasaría de `SALON_LAST_SERVICE_END_MINUTES`. */
 export function filterSlotsServiceEndsOnOrBeforeClose(
@@ -111,23 +156,52 @@ function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export function getAvailableTimesForDate(value: string) {
-  const date = parseDateKey(value);
+export type SalonDayOverrideRef = {
+  kind: "open" | "closed";
+  slots?: string[] | null;
+};
+
+/** Plantilla de inicios para un día (override DB, feriados, weekday). */
+export function resolveSalonSlotStarts(
+  dateKey: string,
+  dayOverride?: SalonDayOverrideRef | null,
+  options?: { allowPast?: boolean },
+): string[] {
+  const date = parseDateKey(dateKey);
   const today = startOfDay(new Date());
 
-  if (startOfDay(date) < today) {
-    return [];
-  }
-  if (isArgentinaPublicHoliday(value)) {
+  if (!options?.allowPast && startOfDay(date) < today) {
     return [];
   }
 
-  const override = availableTimesByDateOverride[value];
-  if (override) {
-    return override;
+  if (dayOverride?.kind === "closed") {
+    return [];
+  }
+
+  if (dayOverride?.kind === "open") {
+    if (dayOverride.slots && dayOverride.slots.length > 0) {
+      return dayOverride.slots;
+    }
+    if (dayOverride.slots && dayOverride.slots.length === 0) {
+      return [];
+    }
+    return availableTimesByWeekday[date.getDay()] ?? [];
+  }
+
+  if (isArgentinaPublicHoliday(dateKey)) {
+    return [];
+  }
+
+  const legacyOverride = availableTimesByDateOverride[dateKey];
+  if (legacyOverride) {
+    return legacyOverride;
   }
 
   return availableTimesByWeekday[date.getDay()] ?? [];
+}
+
+export function getAvailableTimesForDate(value: string) {
+  return resolveSalonSlotStarts(value, null);
 }
 
 export type SalonCalendarItem = {

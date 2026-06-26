@@ -13,6 +13,7 @@ import {
 } from "@/lib/treatments/abundant-hair";
 import {
   HAIR_LENGTH_OPTIONS,
+  LACIO_PROVISIONAL_DURATION_LABEL,
   LACIO_VARIANT_OPTIONS,
   SALON_TREATMENTS,
   findLacioTreatment,
@@ -20,6 +21,7 @@ import {
   isComplementarioTreatmentId,
   isLacioTreatmentId,
   isRetoqueTreatmentId,
+  serviceDurationLabel,
   type LacioVariantId,
 } from "@/lib/treatments/catalog";
 
@@ -46,6 +48,32 @@ type EpicaServicePickerSheetProps = {
 
 const COMPLEMENTARIOS = SALON_TREATMENTS.filter((t) => t.category === "Complementarios");
 
+function serviceCardTitleClass(light: boolean, compact = false) {
+  if (light) {
+    return compact
+      ? "text-lg font-semibold leading-tight text-gray-900"
+      : "text-xl font-semibold leading-tight text-gray-900";
+  }
+  return compact
+    ? "text-[18px] leading-tight font-heading text-[var(--soft-gray)]"
+    : "text-[22px] leading-tight font-heading text-[var(--soft-gray)]";
+}
+
+function serviceDurationClass(light: boolean) {
+  return light ? "mt-1 text-[15px] font-medium text-gray-600" : "mt-0.5 text-[12px] text-[var(--soft-gray)]/58";
+}
+
+function stepHeadingClass(light: boolean, step: EpicaPickerStep) {
+  if (light) {
+    return step === "lacio-addon"
+      ? "min-w-0 flex-1 text-xl font-semibold leading-tight text-gray-900"
+      : "min-w-0 flex-1 text-2xl font-semibold leading-tight text-gray-900";
+  }
+  return `min-w-0 px-0.5 text-center font-heading leading-[1.2] ${
+    step === "lacio-addon" ? "text-[22px]" : "text-[26px]"
+  } ${step === "lacio-length" ? "line-clamp-2" : ""}`;
+}
+
 export function EpicaServicePickerSheet({
   variant = "sheet",
   step,
@@ -64,8 +92,7 @@ export function EpicaServicePickerSheet({
   onClose,
 }: EpicaServicePickerSheetProps) {
   const lacioComplementariosRef = useRef<HTMLDivElement>(null);
-  const inline = variant === "inline";
-  const light = inline;
+  const light = true;
 
   const handleLacioAbundantHairChoice = (choice: AbundantHairChoice) => {
     onAbundantHairChange(choice);
@@ -117,10 +144,10 @@ export function EpicaServicePickerSheet({
 
   const optionCard = (selected: boolean) =>
     light
-      ? `w-full cursor-pointer rounded-[24px] border px-4 py-4 text-left shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition-colors ${
+      ? `w-full cursor-pointer rounded-[24px] border p-6 text-left shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition-all active:scale-[0.99] ${
           selected
-            ? "border-[#B88E2F]/50 bg-[#B88E2F]/8 ring-2 ring-[#B88E2F]/20"
-            : "border-gray-100 bg-white hover:bg-gray-50"
+            ? "border-[#B88E2F] bg-[#B88E2F]/10 ring-2 ring-[#B88E2F]/20"
+            : "border-gray-50 bg-white hover:border-[#B88E2F]/25"
         }`
       : `w-full cursor-pointer rounded-2xl border px-4 py-4 text-left transition-colors ${
           selected
@@ -143,9 +170,7 @@ export function EpicaServicePickerSheet({
               </button>
             ) : null}
             <h2
-              className={`min-w-0 flex-1 font-heading font-bold leading-[1.2] text-gray-900 ${
-                step === "lacio-addon" ? "text-[22px]" : "text-[28px]"
-              } ${step === "lacio-length" ? "line-clamp-2" : ""}`}
+              className={`${stepHeadingClass(light, step)} ${step === "lacio-length" && !light ? "line-clamp-2" : ""}`}
             >
               {title}
             </h2>
@@ -166,11 +191,7 @@ export function EpicaServicePickerSheet({
               ) : (
                 <span className="h-9 w-9" aria-hidden />
               )}
-              <h2
-                className={`min-w-0 px-0.5 text-center font-heading leading-[1.2] ${
-                  step === "lacio-addon" ? "text-[22px]" : "text-[26px]"
-                } ${step === "lacio-length" ? "line-clamp-2" : ""}`}
-              >
+              <h2 className={stepHeadingClass(light, step)}>
                 {title}
               </h2>
               <button
@@ -184,7 +205,7 @@ export function EpicaServicePickerSheet({
           </div>
         )}
 
-        <div className={`min-h-0 flex-1 ${inline ? "" : "overflow-y-auto overscroll-contain px-4 pb-2"}`}>
+        <div className={`min-h-0 flex-1 ${variant === "inline" ? "" : "overflow-y-auto overscroll-contain px-4 pb-2"}`}>
         {step === "root" ? (
           <div className="space-y-2 pb-2">
             <Link
@@ -205,10 +226,13 @@ export function EpicaServicePickerSheet({
                 onClick={() => onPendingLacioVariantChange(variant.id)}
                 className={optionCard(pendingLacioVariant === variant.id)}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <p className={`text-[22px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                    {variant.name}
-                  </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className={serviceCardTitleClass(light)}>{variant.name}</p>
+                    {light ? (
+                      <p className={serviceDurationClass(light)}>{LACIO_PROVISIONAL_DURATION_LABEL}</p>
+                    ) : null}
+                  </div>
                   <span
                     className={`shrink-0 text-[16px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}
                   >
@@ -227,12 +251,10 @@ export function EpicaServicePickerSheet({
               onClick={() => onStepChange("complementarios")}
               className={optionCard(false)}
             >
-              <p className={`text-[22px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                Complementarios
-              </p>
-              {/* <p className={`mt-1 text-[12px] ${light ? "text-gray-500" : "text-[var(--soft-gray)]/58"}`}>
-                Botox, retoque, laminado o lifting
-              </p> */}
+              <p className={serviceCardTitleClass(light)}>Complementarios</p>
+              {!light ? (
+                <p className="mt-1 text-[12px] text-[var(--soft-gray)]/58">Botox, retoque, laminado o lifting</p>
+              ) : null}
             </button>
           </div>
         ) : null}
@@ -257,14 +279,14 @@ export function EpicaServicePickerSheet({
                   onClick={() => onSelectLacioLength(treatment.id)}
                   className={optionCard(isSelected)}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className={`text-[20px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                        {length.label}
-                      </p>
-                      <p className={`mt-0.5 text-[12px] ${light ? "text-gray-500" : "text-[var(--soft-gray)]/58"}`}>
-                        {length.hint}
-                      </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className={serviceCardTitleClass(light)}>{length.label}</p>
+                      {light ? (
+                        <p className={serviceDurationClass(light)}>{serviceDurationLabel(treatment.id)}</p>
+                      ) : (
+                        <p className={serviceDurationClass(light)}>{length.hint}</p>
+                      )}
                     </div>
                     <p className={`shrink-0 text-[17px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}>
                       {treatment.priceLabel}
@@ -292,10 +314,9 @@ export function EpicaServicePickerSheet({
               <p className={`text-[13px] font-medium tracking-[0.06em] uppercase ${light ? "text-gray-500" : "text-[var(--soft-gray)]/55"}`}>
                 Tu elección
               </p>
-              <p className={`mt-2 text-[22px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                {selectedLacio.name}
-              </p>
-              <p className={`mt-1 text-[18px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}>
+              <p className={`mt-2 ${serviceCardTitleClass(light)}`}>{selectedLacio.name}</p>
+              <p className={serviceDurationClass(light)}>{serviceDurationLabel(selectedLacio.id)}</p>
+              <p className={`mt-2 text-[18px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}>
                 {referencePricing?.totalReferenceLabel
                   ? referencePricing.totalReferenceLabel
                   : selectedLacio.priceLabel}
@@ -377,10 +398,13 @@ export function EpicaServicePickerSheet({
                             : "border-white/8 bg-[#1c1c1c] hover:bg-[#222]"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className={`text-[18px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                          {shortName}
-                        </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className={serviceCardTitleClass(light, true)}>{shortName}</p>
+                          {light ? (
+                            <p className={serviceDurationClass(light)}>{serviceDurationLabel(treatment.id)}</p>
+                          ) : null}
+                        </div>
                         <p className={`shrink-0 text-[16px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}>
                           {treatment.priceLabel}
                         </p>
@@ -416,17 +440,21 @@ export function EpicaServicePickerSheet({
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => onDraftSelectComplementarioOnly(treatment.id)}
-                  className={`w-full cursor-pointer rounded-2xl border px-4 py-3 text-left transition-all duration-150 ${
-                    isSelected
-                      ? light
-                        ? "border-[#B88E2F]/50 bg-[#B88E2F]/8 ring-2 ring-[#B88E2F]/20"
-                        : "border-[var(--premium-gold)] bg-[rgba(228,202,105,0.14)] shadow-[0_0_0_1px_rgba(228,202,105,0.35)]"
-                      : light
-                        ? "border-gray-100 bg-white hover:bg-gray-50"
-                        : "border-white/8 bg-[#1c1c1c] hover:bg-[#222]"
+                  className={`w-full cursor-pointer text-left transition-all duration-150 active:scale-[0.99] ${
+                    light
+                      ? `rounded-[24px] border p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] ${
+                          isSelected
+                            ? "border-[#B88E2F] bg-[#B88E2F]/10 ring-2 ring-[#B88E2F]/20"
+                            : "border-gray-50 bg-white hover:border-[#B88E2F]/25"
+                        }`
+                      : `rounded-2xl border px-4 py-3 ${
+                          isSelected
+                            ? "border-[var(--premium-gold)] bg-[rgba(228,202,105,0.14)] shadow-[0_0_0_1px_rgba(228,202,105,0.35)]"
+                            : "border-white/8 bg-[#1c1c1c] hover:bg-[#222]"
+                        }`
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-start gap-2">
                       <span
                         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] ${
@@ -442,9 +470,12 @@ export function EpicaServicePickerSheet({
                       >
                         ✓
                       </span>
-                      <p className={`text-[20px] leading-tight font-heading ${light ? "text-gray-900" : "text-[var(--soft-gray)]"}`}>
-                        {treatment.name}
-                      </p>
+                      <div className="min-w-0">
+                        <p className={serviceCardTitleClass(light)}>{treatment.name}</p>
+                        {light ? (
+                          <p className={serviceDurationClass(light)}>{serviceDurationLabel(treatment.id)}</p>
+                        ) : null}
+                      </div>
                     </div>
                     <p className={`shrink-0 text-[16px] font-semibold ${light ? "text-[#B88E2F]" : "text-[var(--premium-gold)]"}`}>
                       {treatment.priceLabel}
@@ -549,19 +580,19 @@ export function EpicaServicePickerSheet({
     </>
   );
 
-  if (inline) {
+  if (variant === "inline") {
     return <div className="w-full space-y-2">{inner}</div>;
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end bg-black/60 backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-40 flex items-end bg-black/40 backdrop-blur-[2px]">
       <button
         type="button"
         aria-label="Cerrar selector de servicio"
         onClick={onClose}
         className="absolute inset-0 cursor-pointer bg-transparent"
       />
-      <div className="relative flex max-h-[min(88dvh,780px)] w-full flex-col rounded-t-[32px] border-t border-white/8 bg-[#161616] shadow-[0_-18px_40px_rgba(0,0,0,0.45)]">
+      <div className="relative flex max-h-[min(88dvh,780px)] w-full flex-col rounded-t-[32px] border-t border-gray-200 bg-white shadow-[0_-18px_40px_rgba(0,0,0,0.12)]">
         {inner}
       </div>
     </div>

@@ -72,7 +72,7 @@ export function BookingWizardShell({
             {continueLabel}
           </button>
           {continueDisabled && continueHint ? (
-            <p className="mt-2 text-center text-[15px] text-gray-500">{continueHint}</p>
+            <p className="mt-2 text-center text-[15px] text-[#B88E2F]">{continueHint}</p>
           ) : null}
         </div>
       ) : null}

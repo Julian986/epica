@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  CalendarDays,
-  Home as HomeIcon,
-  Instagram,
-  MapPin,
-  Percent,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { Instagram, MapPin } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -23,12 +15,7 @@ import {
 
 function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
       <path
         fill="currentColor"
         d="M12 3.1c-4.9 0-8.9 3.9-8.9 8.8 0 1.6.4 3.1 1.3 4.4L3 21l4.9-1.3c1.3.7 2.7 1.1 4.1 1.1 4.9 0 8.9-3.9 8.9-8.8C20.9 7 16.9 3.1 12 3.1zm0 15.7c-1.3 0-2.5-.3-3.6-.9l-.3-.2-2.9.8.8-2.8-.2-.3c-.8-1.1-1.2-2.4-1.2-3.8C4.6 8 7.9 4.8 12 4.8s7.4 3.2 7.4 7.2-3.3 7.2-7.4 7.2zm4-5.2c-.2-.1-1.1-.6-1.2-.6-.2-.1-.3-.1-.5.1-.1.2-.6.7-.7.8-.1.1-.3.2-.5.1-.2-.1-.8-.3-1.5-.9-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4.1-.1.2-.2.3-.4.1-.1.1-.2.2-.4.1-.1 0-.3 0-.4 0-.1-.5-1.2-.7-1.6-.2-.5-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9 0 1.1.8 2.1.9 2.3.1.2 1.6 2.4 3.8 3.3.5.2.9.3 1.2.4.5.2 1 .2 1.3.1.4-.1 1.1-.4 1.3-.9.2-.5.2-1 .2-1.1-.1-.1-.2-.2-.4-.3z"
@@ -45,95 +32,57 @@ type ContactItem = {
 };
 
 const contactItems: ContactItem[] = [
-  {
-    label: "Dirección",
-    description: EPICA_ADDRESS_LINE,
-    icon: MapPin,
-  },
-  {
-    label: "WhatsApp",
-    description: EPICA_WHATSAPP_DISPLAY,
-    icon: WhatsappIcon,
-    href: EPICA_WHATSAPP_URL,
-  },
-  {
-    label: "Instagram",
-    description: EPICA_INSTAGRAM_HANDLE,
-    icon: Instagram,
-    href: EPICA_INSTAGRAM_URL,
-  },
-  // {
-  //   label: "Horarios",
-  //   description: "Ver detalle de horarios de atención",
-  //   icon: CalendarClock,
-  // },
+  { label: "Dirección", description: EPICA_ADDRESS_LINE, icon: MapPin },
+  { label: "WhatsApp", description: EPICA_WHATSAPP_DISPLAY, icon: WhatsappIcon, href: EPICA_WHATSAPP_URL },
+  { label: "Instagram", description: EPICA_INSTAGRAM_HANDLE, icon: Instagram, href: EPICA_INSTAGRAM_URL },
 ];
 
 export default function ContactoPage() {
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
-      <main className="mx-auto w-full max-w-md px-4 pt-6 pb-24">
-        <header className="mb-5 text-center">
-          <h1 className="text-[28px] leading-none font-heading">Contacto</h1>
+    <div className="min-h-screen bg-white text-gray-900">
+      <main className="mx-auto w-full max-w-md px-5 pt-10 pb-28">
+        <header className="mb-6">
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-gray-900">Contacto</h1>
+          <p className="mt-2 text-lg text-gray-600">WhatsApp, ubicación e Instagram</p>
         </header>
 
-        <section className="mb-4 rounded-2xl border border-white/8 bg-[#181818] px-3 py-1.5 shadow-[0_14px_30px_rgba(0,0,0,0.65)]">
-          <div className="divide-y divide-white/10">
+        <section className="mb-4 rounded-[24px] border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+          <div className="divide-y divide-gray-100">
             {contactItems.map((item) => {
               const Icon = item.icon;
-
               const content = (
-                <div className="flex items-center justify-between px-1 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/18 bg-black/35">
+                <div className="flex items-center justify-between px-5 py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F5F5F5]">
                       <Icon
-                        className={`text-[var(--soft-gray)]/85 ${
-                          item.label === "WhatsApp" ? "h-5 w-5" : "h-4.5 w-4.5"
-                        }`}
+                        className={`text-[#B88E2F] ${item.label === "WhatsApp" ? "h-6 w-6" : "h-5 w-5"}`}
                         strokeWidth={1.7}
                       />
                     </div>
                     <div>
-                      <p className="text-[15px] font-medium text-[var(--soft-gray)]">
-                        {item.label}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-[var(--soft-gray)]/60">
-                        {item.description}
-                      </p>
+                      <p className="text-[17px] font-semibold text-gray-900">{item.label}</p>
+                      <p className="mt-0.5 text-[15px] text-gray-500">{item.description}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-[var(--soft-gray)]/50">›</span>
+                  {item.href ? <span className="text-gray-300">›</span> : null}
                 </div>
               );
 
               if (item.href) {
                 return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
+                  <Link key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="block">
                     {content}
                   </Link>
                 );
               }
-
-              return (
-                <div key={item.label}>
-                  {content}
-                </div>
-              );
+              return <div key={item.label}>{content}</div>;
             })}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/6 bg-[#141414] p-3">
-          <p className="text-[12px] uppercase tracking-[0.18em] text-[var(--soft-gray)]/70">
-            Ubicación en mapa
-          </p>
-          <div className="mt-2 overflow-hidden rounded-xl border border-white/8 bg-black/40">
+        <section className="rounded-[24px] border border-gray-100 bg-[#F5F5F5] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+          <p className="text-sm font-semibold tracking-wide text-[#B88E2F] uppercase">Ubicación en mapa</p>
+          <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 bg-white">
             <iframe
               src={EPICA_ADDRESS_MAPS_EMBED_URL}
               loading="lazy"
@@ -146,69 +95,12 @@ export default function ContactoPage() {
             href={EPICA_ADDRESS_MAPS_SEARCH_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-2 text-[11px] text-[var(--premium-gold)]"
+            className="mt-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#B88E2F]"
           >
-            <span>Ver mapa en Google Maps</span>
+            Ver mapa en Google Maps
           </Link>
         </section>
-
-        {/*
-        <section
-          id="detalle-horarios"
-          className="mt-4 rounded-2xl border border-white/8 bg-[#181818] p-3"
-        >
-          <p className="text-[12px] uppercase tracking-[0.18em] text-[var(--soft-gray)]/70">
-            Detalle de horarios
-          </p>
-          <div className="mt-2 grid grid-cols-1 gap-1 text-[11px] text-[var(--soft-gray)]/80">
-            <p className="font-semibold text-[var(--premium-gold)]">
-              Horarios en los que NO se toman turnos
-            </p>
-            <p>Lunes a Miércoles · 12:00 a 18:00</p>
-            <p>Viernes · 12:00 a 18:00</p>
-            <p className="mt-2 font-semibold text-[var(--premium-gold)]">Horarios disponibles para turnos</p>
-            <p>Lunes a Miércoles · 08:00–11:00 · 15:00–17:00</p>
-            <p>Jueves · 08:00–11:00 · 15:00–19:00</p>
-            <p>Viernes · 08:00–11:00 · 15:00–17:00</p>
-            <p>Sábados · 08:00–12:00</p>
-          </div>
-        </section>
-        */}
       </main>
-
-      <nav className="fixed right-0 bottom-0 left-0 z-30">
-        <div className="flex w-full items-center justify-between border-t border-white/8 bg-black/60 px-4 py-2.5 backdrop-blur-[16px]">
-          <Link href="/" className="flex min-w-0 flex-1 flex-col items-center gap-1">
-            <HomeIcon className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.9} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--soft-gray)]/80">
-              Inicio
-            </span>
-          </Link>
-          <Link
-            href="/tratamientos"
-            className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80"
-          >
-            <Sparkles className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Tratamientos</span>
-          </Link>
-          <Link href="/turnos" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <CalendarDays className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Turnos</span>
-          </Link>
-          <Link
-            href="/promociones"
-            className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80"
-          >
-            <Percent className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Promos</span>
-          </Link>
-          <Link href="/perfil" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <User className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Perfil</span>
-          </Link>
-        </div>
-      </nav>
     </div>
   );
 }
-

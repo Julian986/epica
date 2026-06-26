@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Lock,
   Plus,
+  Sun,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -297,6 +298,14 @@ export function PanelTurnosDashboard() {
             >
               <Lock className="h-5 w-5" strokeWidth={2.2} />
               Bloquear horario
+            </Link>
+            <Link
+              href="/panel-turnos/feriados"
+              onClick={() => trackPanelClick("feriados")}
+              className="col-span-2 flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 text-[14px] font-semibold text-sky-900 transition hover:bg-sky-100"
+            >
+              <Sun className="h-5 w-5" strokeWidth={2.2} />
+              Feriados — abrir día
             </Link>
           </div>
         </header>

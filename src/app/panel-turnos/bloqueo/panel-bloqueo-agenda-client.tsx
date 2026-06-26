@@ -23,7 +23,12 @@ import {
   buildPanelMonthGrid,
   panelMonthTitle,
 } from "@/lib/booking/panel-month-grid";
-import { formatSalonDisplayDate, getAvailableTimesForDate } from "@/lib/booking/salon-availability";
+import {
+  EPICA_DEFAULT_TURN_DURATION_MINUTES,
+  formatSalonDisplayDate,
+  getEpicaFullDayBlockForDate,
+  getEpicaTurnPresetsForDate,
+} from "@/lib/booking/salon-availability";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -65,8 +70,8 @@ export function PanelBloqueoAgendaClient() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarWrapRef = useRef<HTMLDivElement>(null);
 
-  const [timeLocal, setTimeLocal] = useState("14:00");
-  const [endTimeLocal, setEndTimeLocal] = useState("15:30");
+  const [timeLocal, setTimeLocal] = useState("10:00");
+  const [endTimeLocal, setEndTimeLocal] = useState("13:30");
   const [scope, setScope] = useState<Scope>("salon");
   const [recurrenceType, setRecurrenceType] = useState<"once" | "weekly">("once");
   const [untilDateKey, setUntilDateKey] = useState("");
@@ -75,6 +80,8 @@ export function PanelBloqueoAgendaClient() {
   const [error, setError] = useState<string | null>(null);
 
   const grid = useMemo(() => buildPanelMonthGrid(calYear, calMonth), [calYear, calMonth]);
+  const turnPresets = useMemo(() => getEpicaTurnPresetsForDate(anchorDateKey), [anchorDateKey]);
+  const fullDayBlock = useMemo(() => getEpicaFullDayBlockForDate(anchorDateKey), [anchorDateKey]);
 
   useEffect(() => {
     if (!calendarOpen) return;
@@ -252,8 +259,8 @@ export function PanelBloqueoAgendaClient() {
                 <div className="grid grid-cols-7 gap-y-2 text-center">
                   {grid.map((cell) => {
                     const sel = cell.dateKey === anchorDateKey;
-                    const hasSlots = getAvailableTimesForDate(cell.dateKey).length > 0;
-                    const isDisabled = !cell.inMonth || !hasSlots;
+                    const isPast = cell.dateKey < todayYmd();
+                    const isDisabled = !cell.inMonth || isPast;
                     return (
                       <button
                         key={`${cell.dateKey}-${cell.inMonth}-${cell.day}`}
@@ -261,6 +268,11 @@ export function PanelBloqueoAgendaClient() {
                         disabled={isDisabled}
                         onClick={() => {
                           setAnchorDateKey(cell.dateKey);
+                          const presets = getEpicaTurnPresetsForDate(cell.dateKey);
+                          if (presets.length > 0) {
+                            setTimeLocal(presets[0].start);
+                            setEndTimeLocal(presets[0].end);
+                          }
                           const { y, m } = parseYmdToYearMonth(cell.dateKey);
                           setCalYear(y);
                           setCalMonth(m);
@@ -321,14 +333,51 @@ export function PanelBloqueoAgendaClient() {
             ) : null}
           </div>
 
+          {turnPresets.length > 0 ? (
+            <div>
+              <p className={panelLabel}>Atajos de turno (~{EPICA_DEFAULT_TURN_DURATION_MINUTES / 60} h)</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {turnPresets.map((preset) => (
+                  <button
+                    key={preset.start}
+                    type="button"
+                    onClick={() => {
+                      setTimeLocal(preset.start);
+                      setEndTimeLocal(preset.end);
+                    }}
+                    className="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-[13px] font-medium text-gray-800 transition hover:border-[#B88E2F]/40 hover:bg-[#B88E2F]/8"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+                {fullDayBlock && turnPresets.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimeLocal(fullDayBlock.start);
+                      setEndTimeLocal(fullDayBlock.end);
+                    }}
+                    className="cursor-pointer rounded-xl border border-[#B88E2F]/40 bg-[#B88E2F]/10 px-3 py-2 text-[13px] font-semibold text-[#996515] transition hover:bg-[#B88E2F]/15"
+                  >
+                    Todo el día ({fullDayBlock.start}–{fullDayBlock.end})
+                  </button>
+                ) : null}
+              </div>
+              {turnPresets.length > 1 ? (
+                <p className="mt-2 text-[11px] leading-snug text-gray-500">
+                  Para bloquear turno por turno, guardá un bloqueo y volvé a crear otro con el siguiente atajo.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           <fieldset>
             <legend className={panelLabel}>Alcance</legend>
             <div className="mt-2 space-y-2">
               {(
                 [
                   { v: "salon" as const, label: "Todo el salón", hint: "Nadie puede reservar en esa franja." },
-                  { v: "chair_1" as const, label: "Silla 1", hint: "Solo bloquea una silla, puede haber otra." },
-                  { v: "chair_2" as const, label: "Silla 2", hint: "Solo bloquea una silla, puede haber otra." },
+                  { v: "chair_1" as const, label: "Silla 1", hint: "Solo bloquea la silla (por ahora hay una sola)." },
                 ] as const
               ).map((opt) => (
                 <label

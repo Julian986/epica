@@ -74,13 +74,29 @@ function buildArgentinaHolidaySet(year: number): Set<string> {
 
 const byYear = new Map<number, Set<string>>();
 
+function holidaySetForYear(year: number): Set<string> {
+  if (!byYear.has(year)) {
+    byYear.set(year, buildArgentinaHolidaySet(year));
+  }
+  return byYear.get(year)!;
+}
+
 export function isArgentinaPublicHoliday(dateKey: string): boolean {
   const [ys] = dateKey.split("-");
   const year = Number(ys);
   if (!Number.isInteger(year)) return false;
-  if (!byYear.has(year)) {
-    byYear.set(year, buildArgentinaHolidaySet(year));
+  return holidaySetForYear(year).has(dateKey);
+}
+
+/** Feriados nacionales (yyyy-mm-dd) dentro de un mes calendario (monthIndex 0–11). */
+export function listArgentinaPublicHolidaysInMonth(year: number, monthIndex: number): string[] {
+  const set = holidaySetForYear(year);
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const out: string[] = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
+    if (set.has(key)) out.push(key);
   }
-  return byYear.get(year)!.has(dateKey);
+  return out;
 }
 

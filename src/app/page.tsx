@@ -7,7 +7,6 @@ import {
   EPICA_BRAND_TAGLINE,
   EPICA_HOME_INTRO,
 } from "@/lib/epica-brand";
-import { CalendarDays, Home as HomeIcon, Percent, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -19,9 +18,8 @@ const SPLASH_AFTER_LOAD_MS = 90;
 
 function SplashScreen({ onLogoReady }: { onLogoReady: () => void }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#111111] text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white text-gray-900">
       <div className="flex w-full max-w-md flex-col items-center px-6">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <div className="inline-flex flex-col items-center gap-2">
             <BrandLogo
@@ -34,34 +32,32 @@ function SplashScreen({ onLogoReady }: { onLogoReady: () => void }) {
             <div className="text-center text-2xl font-medium leading-tight tracking-[0.1em] font-heading">
               <span className="block">{EPICA_BRAND_NAME_UPPER}</span>
             </div>
-            <div className="text-xs tracking-[0.22em] text-[var(--premium-gold)]/90">
-              {EPICA_BRAND_TAGLINE}
-            </div>
+            <div className="text-xs tracking-[0.22em] text-[#B88E2F]">{EPICA_BRAND_TAGLINE}</div>
           </div>
         </div>
-
-        {/* Frase */}
-        <p className="max-w-xs text-center text-sm leading-relaxed text-[var(--soft-gray)]">
-          {EPICA_HOME_INTRO}
-        </p>
+        <p className="max-w-xs text-center text-sm leading-relaxed text-gray-600">{EPICA_HOME_INTRO}</p>
       </div>
     </div>
   );
 }
 
+const secondaryBtn =
+  "flex h-[52px] items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-[15px] font-medium tracking-[0.06em] text-gray-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition active:scale-[0.98]";
+
+const cursoHighlightBtn =
+  "flex h-[52px] items-center justify-center rounded-full border-2 border-[#B88E2F] bg-[#B88E2F]/10 px-6 text-[15px] font-semibold tracking-[0.06em] text-[#996515] shadow-[0_4px_20px_rgba(184,142,47,0.15)] transition active:scale-[0.98]";
+
 function HomeContent() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#111111] text-white">
-      {/* Fondo editorial (móvil y escritorio) — el logo va redondo en el header, no a pantalla completa */}
+    <div className="relative min-h-screen overflow-hidden bg-white text-gray-900">
       <div
         aria-hidden
-        className="fixed top-0 right-0 left-0 z-0 h-[100svh] bg-[#111111]"
+        className="pointer-events-none fixed inset-0 z-0"
         style={{
           backgroundImage: [
-            "radial-gradient(ellipse 120% 70% at 50% -15%, rgba(228,202,105,0.14), transparent 52%)",
-            "radial-gradient(ellipse 80% 55% at 100% 40%, rgba(206,120,50,0.07), transparent 45%)",
-            "radial-gradient(ellipse 60% 50% at 0% 75%, rgba(228,202,105,0.05), transparent 42%)",
-            "linear-gradient(to bottom, #151515 0%, #111111 38%, #101010 100%)",
+            "radial-gradient(ellipse 120% 70% at 50% -15%, rgba(184,142,47,0.12), transparent 52%)",
+            "radial-gradient(ellipse 80% 55% at 100% 40%, rgba(206,120,50,0.06), transparent 45%)",
+            "linear-gradient(to bottom, #fafafa 0%, #ffffff 38%, #ffffff 100%)",
           ].join(","),
         }}
       />
@@ -70,15 +66,11 @@ function HomeContent() {
         <header className="flex justify-center">
           <div className="inline-flex flex-col items-center gap-1 text-center">
             <BrandLogo size="header" />
-            <div className="text-center text-[20px] font-medium leading-tight tracking-[0.1em] text-white font-heading">
+            <div className="text-center text-[20px] font-medium leading-tight tracking-[0.1em] text-gray-900 font-heading">
               <span className="block">{EPICA_BRAND_NAME_UPPER}</span>
             </div>
-            <div className="text-[11px] tracking-[0.2em] text-[var(--premium-gold)]/90">
-              {EPICA_BRAND_TAGLINE}
-            </div>
-            <div className="text-[10px] tracking-[0.14em] text-[var(--soft-gray)]/75">
-              {EPICA_BRAND_SUBTITLE}
-            </div>
+            <div className="text-[11px] tracking-[0.2em] text-[#B88E2F]">{EPICA_BRAND_TAGLINE}</div>
+            <div className="text-[10px] tracking-[0.14em] text-gray-500">{EPICA_BRAND_SUBTITLE}</div>
           </div>
         </header>
 
@@ -88,64 +80,46 @@ function HomeContent() {
             <div className="mx-auto flex w-[84%] flex-col gap-3">
               <Link
                 href="/turnos"
-                className="flex h-[52px] items-center justify-center rounded-full bg-[var(--premium-gold)] px-6 text-[16px] font-semibold tracking-[0.14em] text-[var(--on-accent)] shadow-[0_16px_36px_rgba(0,0,0,0.45)]"
+                className="flex h-[52px] items-center justify-center rounded-full bg-[#B88E2F] px-6 text-[16px] font-semibold tracking-[0.06em] text-white shadow-lg transition active:scale-[0.98]"
               >
                 Reservar turno
               </Link>
-              <Link
-                href="/tratamientos"
-                className="flex h-[52px] items-center justify-center rounded-full border border-white/8 bg-black/45 px-6 text-[15px] font-medium tracking-[0.14em] text-white backdrop-blur-[10px]"
-              >
+              <Link href="/tratamientos" className={secondaryBtn}>
                 Tratamientos
               </Link>
-              <Link
-                href="/curso"
-                className="flex h-[52px] items-center justify-center rounded-full border border-white/8 bg-black/45 px-6 text-[15px] font-medium tracking-[0.14em] text-white backdrop-blur-[10px]"
-              >
+              <Link href="/curso" className={cursoHighlightBtn}>
                 Curso de alisado
               </Link>
-              <Link
-                href="/promociones"
-                className="flex h-[52px] items-center justify-center rounded-full border border-white/8 bg-black/45 px-6 text-[15px] font-medium tracking-[0.14em] text-white backdrop-blur-[10px]"
-              >
+              <Link href="/promociones" className={secondaryBtn}>
                 Promociones
               </Link>
             </div>
           </section>
 
           <section className="mx-auto w-[84%] space-y-3">
-            <Link
-              href="/contacto"
-              className="flex h-[52px] w-full items-center justify-center rounded-full border border-white/8 bg-black/45 px-6 text-[15px] font-medium tracking-[0.14em] text-white backdrop-blur-[10px]"
-            >
+            <Link href="/contacto" className={`${secondaryBtn} w-full`}>
               Contacto
             </Link>
           </section>
 
           <section className="mx-auto w-[84%]">
-            <div className="mb-3 text-[10px] tracking-[0.24em] text-[var(--soft-gray)]/70">
-              DESTACADO
-            </div>
-            <div className="rounded-[28px] border border-white/8 bg-black/50 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.4)] backdrop-blur-[14px]">
-              <div className="text-[10px] tracking-[0.24em] text-[var(--premium-gold)]">
-                LACIO SUBLIME
-              </div>
-              <h2 className="mt-2 text-lg leading-tight text-white font-heading">
-                Alisado premium sin formol
-              </h2>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--soft-gray)]">
+            <div className="mb-3 text-[10px] tracking-[0.24em] text-gray-500">DESTACADO</div>
+            <div className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+              <div className="text-[10px] tracking-[0.24em] text-[#B88E2F]">LACIO SUBLIME</div>
+              <h2 className="mt-2 text-lg leading-tight text-gray-900 font-heading">Alisado premium sin formol</h2>
+              <p className="mt-2 text-xs leading-relaxed text-gray-600">
                 Conocé la técnica Épica y reservá tu turno online.
               </p>
               <div className="mt-3 flex items-center justify-between gap-3">
                 <Link
                   href="/tratamientos?familia=capilares&servicio=alisado"
-                  className="flex h-10 items-center justify-center rounded-full border border-white/12 bg-[#1a1a1a] px-4 text-[12px] font-medium tracking-[0.08em] text-[var(--soft-gray)]"
+                  className="flex h-10 items-center justify-center rounded-full border border-gray-200 bg-[#F5F5F5] px-4 text-[12px] font-medium tracking-[0.04em] text-gray-700"
                 >
                   Conocé más
                 </Link>
                 <Link
                   href="/turnos"
-                  className="flex h-10 items-center justify-center rounded-full bg-[var(--premium-gold)] px-5 text-[12px] font-semibold tracking-[0.1em] text-[var(--on-accent)]"
+                  className="flex h-10 items-center justify-center rounded-full bg-[#B88E2F] px-5 text-[12px] font-semibold tracking-[0.04em] text-white"
                 >
                   Reservar
                 </Link>
@@ -154,39 +128,6 @@ function HomeContent() {
           </section>
         </div>
       </main>
-
-      <nav className="fixed bottom-0 left-0 right-0 z-30">
-        <div className="flex w-full items-center justify-between border-t border-white/8 bg-black/60 px-4 py-2.5 backdrop-blur-[16px]">
-          <button className="flex min-w-0 flex-1 flex-col items-center gap-1">
-            <HomeIcon className="h-5 w-5 text-[var(--premium-gold)]" strokeWidth={1.9} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--premium-gold)]">
-              Inicio
-            </span>
-          </button>
-          <Link href="/tratamientos" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <Sparkles className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">
-              Tratamientos
-            </span>
-          </Link>
-          <Link href="/turnos" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <CalendarDays className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">
-              Turnos
-            </span>
-          </Link>
-          <Link href="/promociones" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <Percent className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">
-              Promos
-            </span>
-          </Link>
-          <Link href="/perfil" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <User className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Perfil</span>
-          </Link>
-        </div>
-      </nav>
     </div>
   );
 }

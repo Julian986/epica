@@ -3,6 +3,7 @@ import { Montserrat, Playfair_Display } from "next/font/google";
 import { headers } from "next/headers";
 import { BRAND_LOGO_SRC } from "@/components/brand-logo";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { PublicBottomNavGate } from "@/components/public-bottom-nav-gate";
 import { EPICA_BRAND_NAME, EPICA_LOGO_SRC } from "@/lib/epica-brand";
 import { resolvePublicSiteOrigin } from "@/lib/site-origin";
 import "./globals.css";
@@ -84,10 +85,11 @@ export default function RootLayout({
         <link rel="preload" href={BRAND_LOGO_SRC} as="image" />
       </head>
       <body
-        className={`${montserrat.variable} ${playfair.variable} min-h-screen bg-[#111111] text-white antialiased`}
+        className={`${montserrat.variable} ${playfair.variable} min-h-screen bg-white text-gray-900 antialiased`}
       >
         <GoogleAnalytics />
         {children}
+        <PublicBottomNavGate />
       </body>
     </html>
   );

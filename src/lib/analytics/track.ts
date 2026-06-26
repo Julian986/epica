@@ -1,4 +1,25 @@
-import { event } from "@/lib/gtag";
+import { event as gaEvent } from "@/lib/gtag";
+
+/** Evento personalizado GA4. */
+export function trackEvent(
+  action: string,
+  params?: Record<string, unknown> & { category?: string; label?: string },
+): void {
+  const { category, label, ...rest } = params ?? {};
+  gaEvent(action, {
+    ...(category ? { event_category: category } : {}),
+    ...(label ? { event_label: label } : {}),
+    ...rest,
+  });
+}
+
+export function trackNavClick(destination: string): void {
+  trackEvent("nav_click", { category: "navigation", label: destination });
+}
+
+export function trackWizardContinue(step: number): void {
+  trackEvent("wizard_continue", { category: "appointments", label: `step_${step}` });
+}
 
 /** Acciones del panel (/panel-turnos). Sin datos personales de clientas. */
 export function trackPanelClick(
@@ -6,17 +27,10 @@ export function trackPanelClick(
   label?: string,
   extra?: Record<string, unknown>,
 ): void {
-  event(action, {
-    event_category: "panel",
-    ...(label !== undefined ? { event_label: label } : {}),
-    ...extra,
-  });
+  trackEvent(action, { category: "panel", ...(label !== undefined ? { label } : {}), ...extra });
 }
 
-export function trackNavClick(label: string): void {
-  event("nav_click", { event_category: "navigation", event_label: label });
-}
-
-export function trackWizardContinue(step: number): void {
-  event("wizard_continue", { event_category: "booking", event_label: `step_${step}` });
+/** Ítem del menú en /perfil (Mis turnos, Historial, etc.). */
+export function trackPerfilMenuClick(item: string): void {
+  trackEvent("perfil_menu_click", { category: "navigation", label: item });
 }

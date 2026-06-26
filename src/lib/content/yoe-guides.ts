@@ -363,7 +363,7 @@ Una mirada más luminosa, definida y expresiva, con efecto máscara permanente p
 
 Servicios diseñados para realzar tu mirada de forma natural, prolija y duradera, sin extensiones ni maquillaje diario.`;
 
-/** Curso — texto enviado por Yoe, sin edición. */
+/** Curso — texto enviado por Yoe, sin edición. Conservado; la página /curso usa `curso-content.ts`. */
 export const YOE_GUIDE_CURSO = `✨ CURSO PREMIUM DE ALISADO BRASILERO – ÉPICA
 
 Convertite en una profesional con criterio, técnica y seguridad real.

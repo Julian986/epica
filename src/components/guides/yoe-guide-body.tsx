@@ -29,14 +29,13 @@ function classifyLine(line: string, index: number, lines: string[]): LineKind {
 }
 
 const lineClass: Record<Exclude<LineKind, "divider" | "spacer">, string> = {
-  hero: "font-heading text-[26px] leading-[1.15] tracking-[0.01em] text-white sm:text-[28px]",
-  section: "mt-1 font-heading text-[18px] leading-[1.25] text-white first:mt-0",
-  highlight: "text-[14px] leading-[1.5] text-white/95",
-  check: "text-[14px] leading-[1.5] text-white/90",
-  warn: "text-[14px] leading-[1.5] text-red-300/90",
-  bullet:
-    "border-l-2 border-[var(--premium-gold)]/35 pl-3.5 text-[14px] leading-[1.5] text-[var(--soft-gray)]/92",
-  body: "text-[14px] leading-[1.6] text-[var(--soft-gray)]/88",
+  hero: "font-heading text-[26px] leading-[1.15] tracking-[0.01em] text-gray-900 sm:text-[28px]",
+  section: "mt-1 font-heading text-[18px] leading-[1.25] text-gray-900 first:mt-0",
+  highlight: "text-[14px] leading-[1.5] text-gray-800",
+  check: "text-[14px] leading-[1.5] text-gray-800",
+  warn: "text-[14px] leading-[1.5] text-red-700",
+  bullet: "border-l-2 border-[#B88E2F]/35 pl-3.5 text-[14px] leading-[1.5] text-gray-600",
+  body: "text-[14px] leading-[1.6] text-gray-600",
 };
 
 /** Renderiza el texto de Yoe línea por línea, sin alterar el contenido. */
@@ -52,7 +51,7 @@ export function YoeGuideBody({ content }: { content: string }) {
           return (
             <hr
               key={index}
-              className="my-6 border-0 border-t border-[var(--premium-gold)]/15"
+              className="my-6 border-0 border-t border-[#B88E2F]/20"
             />
           );
         }

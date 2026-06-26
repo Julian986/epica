@@ -103,7 +103,7 @@ export function BookingPicker({
   onAbundantHairChange,
   wizardSection,
 }: BookingPickerProps) {
-  const isLight = Boolean(wizardSection);
+  const isLight = true;
   const epicaBundle = Boolean(onServiceIdsChange);
   const effectiveServiceIds = epicaBundle
     ? selectedServiceIds
@@ -319,15 +319,15 @@ export function BookingPicker({
         <button
           type="button"
           onClick={openTreatmentModal}
-          className={`flex w-full cursor-pointer items-center justify-between rounded-2xl border bg-[#171717] px-4 py-3 text-left transition-all ${
+          className={`flex w-full cursor-pointer items-center justify-between rounded-2xl border bg-white px-4 py-3 text-left transition-all ${
             activeStep === 1
-              ? "border-[var(--premium-gold)] shadow-[0_0_0_1px_rgba(228,202,105,0.22),0_0_22px_rgba(206,120,50,0.18)]"
-              : "border-white/8"
+              ? "border-[#B88E2F] shadow-[0_0_0_1px_rgba(184,142,47,0.22),0_0_22px_rgba(184,142,47,0.12)]"
+              : "border-gray-200"
           }`}
         >
           <div>
-            <p className="text-[11px] tracking-[0.14em] text-[var(--soft-gray)]/55">Paso 1</p>
-            <p className="mt-1 text-[14px] text-[var(--soft-gray)]">
+            <p className="text-[11px] tracking-[0.14em] text-gray-500">Paso 1</p>
+            <p className="mt-1 text-[14px] text-gray-900">
               {summaryTitle ??
                 (summaryTreatments.length > 1
                   ? summaryTreatments.map((t) => t.name).join(" + ")
@@ -336,9 +336,9 @@ export function BookingPicker({
                     : "Elegí servicio")}
             </p>
             {selectedCountLabel ? (
-              <p className="mt-1 text-[11px] text-[var(--soft-gray)]/55">{selectedCountLabel}</p>
+              <p className="mt-1 text-[11px] text-gray-500">{selectedCountLabel}</p>
             ) : selectedTreatment ? (
-              <p className="mt-1 text-[11px] text-[var(--soft-gray)]/55">
+              <p className="mt-1 text-[11px] text-gray-500">
                 {referencePricingSummary?.totalReferenceLabel
                   ? `Precio referencia ${referencePricingSummary.totalReferenceLabel}`
                   : selectedTreatmentDetail?.priceLabel
@@ -347,42 +347,42 @@ export function BookingPicker({
               </p>
             ) : null}
             {selectedDurationLabel ? (
-              <div className="mt-2 inline-flex items-center rounded-full border border-[var(--premium-gold)]/55 bg-[var(--premium-gold)]/12 px-2.5 py-1">
-                <span className="text-[11px] font-semibold tracking-[0.02em] text-[var(--premium-gold)]">
+              <div className="mt-2 inline-flex items-center rounded-full border border-[#B88E2F]/55 bg-[#B88E2F]/12 px-2.5 py-1">
+                <span className="text-[11px] font-semibold tracking-[0.02em] text-[#996515]">
                   {selectedDurationLabel}
                 </span>
               </div>
             ) : null}
             {activeStep === 1 && (
-              <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--premium-gold)]/92">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--premium-gold)]" />
+              <div className="mt-2 flex items-center gap-2 text-[11px] text-[#B88E2F]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#B88E2F]" />
                 <span>Comenzá seleccionando el servicio</span>
               </div>
             )}
           </div>
-          <ChevronRight className="h-4 w-4 text-[var(--soft-gray)]/60" strokeWidth={1.8} />
+          <ChevronRight className="h-4 w-4 text-gray-400" strokeWidth={1.8} />
         </button>
 
         <div
-          className={`flex items-center justify-between rounded-2xl border bg-[#171717] px-4 py-3 transition-all ${
+          className={`flex items-center justify-between rounded-2xl border bg-white px-4 py-3 transition-all ${
             activeStep === 2
-              ? "border-[var(--premium-gold)] shadow-[0_0_0_1px_rgba(228,202,105,0.22),0_0_22px_rgba(206,120,50,0.18)]"
-              : "border-white/8"
+              ? "border-[#B88E2F] shadow-[0_0_0_1px_rgba(184,142,47,0.22),0_0_22px_rgba(184,142,47,0.12)]"
+              : "border-gray-200"
           }`}
         >
           <div>
-            <p className="text-[11px] tracking-[0.14em] text-[var(--soft-gray)]/55">Paso 2</p>
-            <p className="mt-1 text-[14px] text-[var(--soft-gray)]">
+            <p className="text-[11px] tracking-[0.14em] text-gray-500">Paso 2</p>
+            <p className="mt-1 text-[14px] text-gray-900">
               {selectedDate ? formatSalonDisplayDate(selectedDate) : "Elegí día"}
             </p>
             {activeStep === 2 && (
-              <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--premium-gold)]/92">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--premium-gold)]" />
+              <div className="mt-2 flex items-center gap-2 text-[11px] text-[#B88E2F]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#B88E2F]" />
                 <span>Ahora elegí una fecha disponible</span>
               </div>
             )}
           </div>
-          <ChevronRight className="h-4 w-4 rotate-90 text-[var(--soft-gray)]/60" strokeWidth={1.8} />
+          <ChevronRight className="h-4 w-4 rotate-90 text-gray-400" strokeWidth={1.8} />
         </div>
       </section>
       ) : null}
@@ -472,9 +472,12 @@ export function BookingPicker({
               Boolean(hasServiceSelection) &&
               monthAvailReady &&
               day.isCurrentMonth &&
-              day.isAvailable &&
+              (day.isAvailable || monthAvailability[day.value] === true) &&
               monthAvailability[day.value] === false;
-            const isDisabled = !day.isCurrentMonth || !day.isAvailable || fullyBooked;
+            const serverOpen =
+              monthAvailReady && day.isCurrentMonth && monthAvailability[day.value] === true;
+            const isDisabled = !day.isCurrentMonth || fullyBooked || (!day.isAvailable && !serverOpen);
+            const daySelectable = day.isAvailable || serverOpen;
 
             const dayClass = isLight
               ? `mx-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border text-[16px] font-semibold transition-all disabled:cursor-not-allowed ${
@@ -484,7 +487,7 @@ export function BookingPicker({
                       ? "border-[var(--border-light)] bg-[var(--surface-light)] text-[var(--text-secondary)] line-through"
                       : !day.isCurrentMonth
                         ? "border-transparent text-[var(--text-secondary)]/35"
-                        : day.isAvailable
+                        : daySelectable
                           ? isToday
                             ? "border-[var(--premium-gold)]/50 bg-[var(--premium-gold)]/12 text-[var(--text-primary)]"
                             : "border-[var(--border-light)] bg-white text-[var(--text-primary)] hover:border-[var(--premium-gold)]/40"
@@ -497,7 +500,7 @@ export function BookingPicker({
                       ? "bg-[#c9b89a]/55 text-[#5c4f3d] line-through decoration-[#6b5a45]"
                       : !day.isCurrentMonth
                         ? "text-[#cfbea8]/45"
-                        : day.isAvailable
+                        : daySelectable
                           ? "bg-[#eed7ae] text-[#3b2f22]"
                           : "text-[#897a67]"
                 }`;
@@ -510,14 +513,14 @@ export function BookingPicker({
                 title={
                   fullyBooked
                     ? "Sin cupos para este servicio (ocupado o bloqueado)."
-                    : !day.isAvailable && day.isCurrentMonth
+                    : !day.isAvailable && !serverOpen && day.isCurrentMonth
                       ? "Día no disponible (cerrado o feriado)."
                       : undefined
                 }
                 aria-label={
                   fullyBooked
                     ? `${day.dayNumber}, sin cupos`
-                    : !day.isAvailable && day.isCurrentMonth
+                    : !day.isAvailable && !serverOpen && day.isCurrentMonth
                       ? `${day.dayNumber}, no disponible`
                       : undefined
                 }
@@ -550,15 +553,15 @@ export function BookingPicker({
         <section>
           {!wizardSection ? (
           <div
-            className={`flex items-center justify-between rounded-2xl border bg-[#171717] px-4 py-3 transition-all ${
+            className={`flex items-center justify-between rounded-2xl border bg-white px-4 py-3 transition-all ${
               activeStep === 3
-                ? "border-[var(--premium-gold)] shadow-[0_0_0_1px_rgba(228,202,105,0.22),0_0_22px_rgba(206,120,50,0.18)]"
-                : "border-white/8"
+                ? "border-[#B88E2F] shadow-[0_0_0_1px_rgba(184,142,47,0.22),0_0_22px_rgba(184,142,47,0.12)]"
+                : "border-gray-200"
             }`}
           >
             <div>
-              <p className="text-[11px] tracking-[0.14em] text-[var(--soft-gray)]/55">Paso 3</p>
-              <p className="mt-1 text-[14px] text-[var(--soft-gray)]">
+              <p className="text-[11px] tracking-[0.14em] text-gray-500">Paso 3</p>
+              <p className="mt-1 text-[14px] text-gray-900">
                 {selectedTime ? `Horario elegido: ${selectedTime}` : "Elegí horario"}
               </p>
               {activeStep === 3 && (
@@ -568,7 +571,7 @@ export function BookingPicker({
                 </div>
               )}
             </div>
-            <ChevronRight className="h-4 w-4 text-[var(--soft-gray)]/60" strokeWidth={1.8} />
+            <ChevronRight className="h-4 w-4 text-gray-400" strokeWidth={1.8} />
           </div>
           ) : null}
 
@@ -622,12 +625,12 @@ export function BookingPicker({
                 {selectedDate ? (
                   <>
                     <p className={`text-[16px] font-medium ${isLight ? "text-amber-900" : "text-[13px] text-amber-100/95"}`}>
-                      {isSelectedDateHoliday
+                      {isSelectedDateHoliday && (monthAvailability?.[selectedDate] !== true)
                         ? "Feriado (cerrado): no hay horarios disponibles para este día."
                         : "No hay horarios disponibles para este día."}
                     </p>
                     <p className={`mt-1 ${isLight ? "text-[16px] text-amber-800" : "text-[12px] text-amber-100/75"}`}>
-                      {isSelectedDateHoliday
+                      {isSelectedDateHoliday && (monthAvailability?.[selectedDate] !== true)
                         ? "Elegí otra fecha habilitada para ver turnos disponibles."
                         : "Probá con otra fecha para ver turnos disponibles."}
                     </p>

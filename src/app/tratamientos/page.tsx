@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  CalendarDays,
-  ChevronRight,
-  Droplets,
-  Eye,
-  Home as HomeIcon,
-  Percent,
-  Sparkles,
-  User,
-  Wind,
-} from "lucide-react";
+import { ChevronRight, Droplets, Eye, Wind } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
@@ -35,6 +25,7 @@ import {
 } from "@/lib/content/yoe-guides";
 import {
   LACIO_VARIANT_OPTIONS,
+  ABUNDANT_HAIR_SURCHARGE_LABEL,
   RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL,
   findSalonTreatmentById,
   listLacioTreatmentsByVariant,
@@ -42,20 +33,20 @@ import {
 } from "@/lib/treatments/catalog";
 
 const pillClass = (active: boolean) =>
-  `shrink-0 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${
-    active ? "bg-[#2a2a2a] text-[var(--soft-gray)]" : "bg-transparent text-[var(--soft-gray)]/70"
+  `shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+    active ? "bg-[#B88E2F] text-white shadow-sm" : "bg-[#F5F5F5] text-gray-600 hover:bg-gray-100"
   }`;
 
 const subPillClass = (active: boolean) =>
-  `shrink-0 rounded-full px-3 py-1.5 text-[12px] transition-colors ${
-    active ? "bg-[#2a2a2a] text-[var(--soft-gray)]" : "bg-transparent text-[var(--soft-gray)]/65"
+  `shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+    active ? "bg-[#B88E2F] text-white shadow-sm" : "bg-[#F5F5F5] text-gray-600 hover:bg-gray-100"
   }`;
 
 function ReserveButton({ href, label = "Reservar turno" }: { href: string; label?: string }) {
   return (
     <Link
       href={href}
-      className="flex h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[15px] font-medium tracking-[0.06em] text-white shadow-[0_12px_28px_rgba(0,0,0,0.4)]"
+      className="flex h-[52px] w-full items-center justify-center rounded-full bg-[#B88E2F] text-[16px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
     >
       {label}
     </Link>
@@ -64,8 +55,17 @@ function ReserveButton({ href, label = "Reservar turno" }: { href: string; label
 
 function GuidePanel({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#161616]/80 px-4 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
+    <div className="rounded-[24px] border border-gray-100 bg-white px-5 py-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
       {children}
+    </div>
+  );
+}
+
+function ServiceIconArea({ children }: { children: ReactNode }) {
+  return (
+    <div className="relative flex h-24 items-center justify-center overflow-hidden bg-[#F5F5F5]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(184,142,47,0.15),transparent_50%)]" />
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
@@ -91,35 +91,29 @@ function TreatmentsPageContent() {
   const liftingTreatment = findSalonTreatmentById("lifting-pestanas-epica");
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
-      <main className="mx-auto w-full max-w-md px-4 pt-6 pb-24">
-        <header className="mb-4 text-center">
-          <h1 className="text-[34px] leading-none font-heading">Servicios</h1>
-          <p className="mt-2 text-[11px] tracking-[0.14em] text-[var(--premium-gold)]/90 uppercase">
+    <div className="min-h-screen bg-white text-gray-900">
+      <main className="mx-auto w-full max-w-md px-5 pt-10 pb-28">
+        <header className="mb-6 text-center">
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-gray-900">Servicios</h1>
+          <p className="mt-2 text-[15px] font-medium tracking-wide text-[#B88E2F] uppercase">
             Épica · Experiencia Premium
           </p>
         </header>
 
-        <p className="mb-3 text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/85">
-          Los precios pueden ajustarse según diagnóstico de largo, cantidad y estado del cabello.
-          Cabello abundante: + $10.000 en alisados · mucho cabello en retoque: + $5.000.
+        <p className="mb-4 text-center text-[13px] leading-snug text-gray-500">
+          Precios orientativos; el valor final se confirma en salón según diagnóstico.
         </p>
 
-        <section className="mb-2 flex items-center gap-2 overflow-x-auto pb-1">
+        <section className="mb-3 flex items-center gap-2 overflow-x-auto pb-1">
           {TREATMENT_FAMILIES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setFamily(item.id)}
-              className={pillClass(family === item.id)}
-            >
+            <button key={item.id} type="button" onClick={() => setFamily(item.id)} className={pillClass(family === item.id)}>
               {item.label}
             </button>
           ))}
         </section>
 
         {family === "capilares" ? (
-          <section className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1">
+          <section className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1">
             {CAPILAR_SERVICES.map((item) => (
               <button
                 key={item.id}
@@ -141,7 +135,10 @@ function TreatmentsPageContent() {
             </GuidePanel>
 
             <div className="space-y-3">
-              <p className="text-center text-[12px] tracking-[0.08em] text-[var(--soft-gray)]/75 uppercase">
+              <p className="text-center text-[13px] text-gray-500">
+                Cabello abundante en alisado: {ABUNDANT_HAIR_SURCHARGE_LABEL}
+              </p>
+              <p className="text-center text-[13px] font-semibold tracking-wide text-gray-500 uppercase">
                 Paquetes de alisado
               </p>
               {LACIO_VARIANT_OPTIONS.map((variant) => {
@@ -150,26 +147,19 @@ function TreatmentsPageContent() {
                 return (
                   <article
                     key={variant.id}
-                    className="overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+                    className="overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
                   >
-                    <div className="relative h-24 overflow-hidden bg-[#141414]">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%),linear-gradient(135deg,#191919_0%,#131313_58%,#0f0f0f_100%)]" />
-                      <div className="relative z-10 flex h-full items-center justify-center">
-                        <Wind className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
-                      </div>
-                    </div>
+                    <ServiceIconArea>
+                      <Wind className="h-7 w-7 text-[#B88E2F]" strokeWidth={1.9} />
+                    </ServiceIconArea>
 
-                    <div className="px-4 pb-4">
+                    <div className="px-5 pb-5">
                       <div className="flex items-start justify-between gap-2">
-                        <h2 className="text-[20px] leading-tight font-heading">{variant.name}</h2>
-                        <p className="shrink-0 text-[12px] text-[var(--premium-gold)]">
-                          desde {variant.priceFromLabel}
-                        </p>
+                        <h2 className="text-[20px] leading-tight font-semibold text-gray-900">{variant.name}</h2>
+                        <p className="shrink-0 text-[13px] font-semibold text-[#B88E2F]">desde {variant.priceFromLabel}</p>
                       </div>
-                      <p className="mt-1 text-[11px] leading-relaxed text-[var(--soft-gray)]/80">
-                        {variant.description}
-                      </p>
-                      <ul className="mt-2 space-y-0.5 text-[10px] text-[var(--soft-gray)]/70">
+                      <p className="mt-1 text-[14px] leading-relaxed text-gray-600">{variant.description}</p>
+                      <ul className="mt-2 space-y-0.5 text-[13px] text-gray-500">
                         {variant.benefits.map((b) => (
                           <li key={b}>· {b}</li>
                         ))}
@@ -179,16 +169,12 @@ function TreatmentsPageContent() {
                         {lengths.map((t) => (
                           <div
                             key={t.id}
-                            className="rounded-xl border border-white/6 bg-[#141414] px-2 py-2 text-center"
+                            className="rounded-xl border border-gray-100 bg-[#F5F5F5] px-2 py-2 text-center"
                           >
-                            <p className="text-[11px] font-medium text-white/90">
-                              {t.hairLength === "corto"
-                                ? "Corto"
-                                : t.hairLength === "medio"
-                                  ? "Medio"
-                                  : "Largo"}
+                            <p className="text-[12px] font-medium text-gray-800">
+                              {t.hairLength === "corto" ? "Corto" : t.hairLength === "medio" ? "Medio" : "Largo"}
                             </p>
-                            <p className="mt-0.5 text-[10px] text-[var(--premium-gold)]">{t.priceLabel}</p>
+                            <p className="mt-0.5 text-[11px] font-semibold text-[#B88E2F]">{t.priceLabel}</p>
                           </div>
                         ))}
                       </div>
@@ -196,7 +182,7 @@ function TreatmentsPageContent() {
                       <div className="mt-3">
                         <Link
                           href={`/turnos?variant=${variant.id}`}
-                          className="flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
+                          className="flex h-10 w-full items-center justify-center rounded-full bg-[#B88E2F] text-[14px] font-semibold text-white"
                         >
                           Reservar
                         </Link>
@@ -211,7 +197,7 @@ function TreatmentsPageContent() {
               <ReserveButton href="/turnos" />
               <Link
                 href={CURSO_PATH}
-                className="flex h-11 w-full items-center justify-center rounded-full border border-white/10 bg-[#1a1a1a] text-[13px] font-medium text-[var(--soft-gray)]"
+                className="flex h-11 w-full items-center justify-center rounded-full border border-gray-200 bg-white text-[14px] font-medium text-gray-800"
               >
                 ✨ CURSO PREMIUM DE ALISADO BRASILERO – ÉPICA
               </Link>
@@ -227,19 +213,14 @@ function TreatmentsPageContent() {
             </GuidePanel>
 
             {botoxTreatment ? (
-              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
-                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
-                  <div className="relative z-10 flex h-full items-center justify-center">
-                    <Droplets className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
-                  </div>
+              <article className="flex overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                <div className="relative flex w-24 shrink-0 items-center justify-center bg-[#F5F5F5]">
+                  <Droplets className="h-7 w-7 text-[#B88E2F]" strokeWidth={1.9} />
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
-                  <h2 className="text-[17px] leading-tight font-heading">{botoxTreatment.name}</h2>
-                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{botoxTreatment.priceLabel}</p>
-                  <p className="mt-1 text-[10px] text-[var(--soft-gray)]/65">
-                    Duración: {botoxTreatment.durationLabel}
-                  </p>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-4">
+                  <h2 className="text-[18px] leading-tight font-semibold text-gray-900">{botoxTreatment.name}</h2>
+                  <p className="mt-1 text-[14px] font-semibold text-[#B88E2F]">{botoxTreatment.priceLabel}</p>
+                  <p className="mt-1 text-[13px] text-gray-500">Duración: {botoxTreatment.durationLabel}</p>
                 </div>
               </article>
             ) : null}
@@ -265,30 +246,25 @@ function TreatmentsPageContent() {
             </GuidePanel>
 
             {retoqueTreatment ? (
-              <article className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]">
-                <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
-                  <div className="relative z-10 flex h-full items-center justify-center">
-                    <Wind className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
-                  </div>
+              <article className="flex overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                <div className="relative flex w-24 shrink-0 items-center justify-center bg-[#F5F5F5]">
+                  <Wind className="h-7 w-7 text-[#B88E2F]" strokeWidth={1.9} />
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3">
-                  <h2 className="text-[17px] leading-tight font-heading">{retoqueTreatment.name}</h2>
-                  <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{retoqueTreatment.priceLabel}</p>
-                  <p className="mt-1 text-[10px] text-[var(--soft-gray)]/65">
-                    Duración: {retoqueTreatment.durationLabel}
-                  </p>
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-4">
+                  <h2 className="text-[18px] leading-tight font-semibold text-gray-900">{retoqueTreatment.name}</h2>
+                  <p className="mt-1 text-[14px] font-semibold text-[#B88E2F]">{retoqueTreatment.priceLabel}</p>
+                  <p className="mt-1 text-[13px] text-gray-500">Duración: {retoqueTreatment.durationLabel}</p>
                 </div>
               </article>
             ) : null}
 
-            <p className="text-center text-[11px] text-[var(--soft-gray)]/65">
-              Mucho cabello: {RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL}
+            <p className="text-center text-[13px] text-gray-500">
+              Mucho cabello en retoque: {RETOQUE_ABUNDANT_HAIR_SURCHARGE_LABEL}
             </p>
             <ReserveButton href="/turnos?treatment=retoque-raices-epica" />
-            <p className="text-center text-[11px] leading-relaxed text-[var(--soft-gray)]/65">
+            <p className="text-center text-[14px] leading-relaxed text-gray-500">
               Al reservar un turno también podés elegirlo en{" "}
-              <span className="text-[var(--soft-gray)]/85">Complementarios</span>.
+              <span className="font-medium text-gray-700">Complementarios</span>.
             </p>
           </section>
         ) : null}
@@ -297,7 +273,7 @@ function TreatmentsPageContent() {
           <section className="space-y-4 pb-2">
             <GuidePanel>
               <YoePrepSection content={YOE_PROTOCOLO_PREPARACION_MIRADA} />
-              <div className="mt-6 border-t border-white/[0.06] pt-6">
+              <div className="mt-6 border-t border-gray-100 pt-6">
                 <YoeGuideBody content={YOE_GUIDE_MIRADA} />
               </div>
             </GuidePanel>
@@ -306,25 +282,20 @@ function TreatmentsPageContent() {
               service ? (
                 <article
                   key={service.id}
-                  className="flex overflow-hidden rounded-2xl border border-white/8 bg-[#1a1a1a] shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+                  className="flex overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]"
                 >
-                  <div className="relative w-24 shrink-0 overflow-hidden bg-[#141414]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(228,202,105,0.22),transparent_46%)]" />
-                    <div className="relative z-10 flex h-full items-center justify-center">
-                      <Eye className="h-7 w-7 text-[var(--premium-gold)]" strokeWidth={1.9} />
-                    </div>
+                  <div className="relative flex w-24 shrink-0 items-center justify-center bg-[#F5F5F5]">
+                    <Eye className="h-7 w-7 text-[#B88E2F]" strokeWidth={1.9} />
                   </div>
-                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 px-3 py-3">
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 px-4 py-4">
                     <div>
-                      <h2 className="text-[17px] leading-tight font-heading">{service.name}</h2>
-                      <p className="mt-1 text-[12px] text-[var(--premium-gold)]">{service.priceLabel}</p>
-                      <p className="mt-1 text-[10px] leading-snug text-[var(--soft-gray)]/65">
-                        {service.description}
-                      </p>
+                      <h2 className="text-[18px] leading-tight font-semibold text-gray-900">{service.name}</h2>
+                      <p className="mt-1 text-[14px] font-semibold text-[#B88E2F]">{service.priceLabel}</p>
+                      <p className="mt-1 text-[13px] leading-snug text-gray-500">{service.description}</p>
                     </div>
                     <Link
                       href={`/turnos?treatment=${encodeURIComponent(service.id)}`}
-                      className="flex h-9 w-full items-center justify-center rounded-full bg-gradient-to-r from-[var(--accent-orange)] to-[var(--premium-gold)] text-[14px] font-medium text-white"
+                      className="flex h-9 w-full items-center justify-center rounded-full bg-[#B88E2F] text-[14px] font-semibold text-white"
                     >
                       Reservar
                     </Link>
@@ -335,39 +306,14 @@ function TreatmentsPageContent() {
 
             <Link
               href="/tratamientos/experiencia-mirada"
-              className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-[#1a1a1a] py-3 text-[13px] text-[var(--soft-gray)]"
+              className="flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white py-3 text-[14px] font-medium text-gray-700"
             >
               Ver guía en pantalla completa
-              <ChevronRight className="h-4 w-4 text-[var(--premium-gold)]/80" strokeWidth={1.8} />
+              <ChevronRight className="h-4 w-4 text-[#B88E2F]" strokeWidth={1.8} />
             </Link>
           </section>
         ) : null}
       </main>
-
-      <nav className="fixed right-0 bottom-0 left-0 z-30">
-        <div className="flex w-full items-center justify-between border-t border-white/8 bg-black/60 px-4 py-2.5 backdrop-blur-[16px]">
-          <Link href="/" className="flex min-w-0 flex-1 flex-col items-center gap-1">
-            <HomeIcon className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.9} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--soft-gray)]/80">Inicio</span>
-          </Link>
-          <Link href="/tratamientos" className="flex min-w-0 flex-1 flex-col items-center gap-1">
-            <Sparkles className="h-5 w-5 text-[var(--premium-gold)]" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em] text-[var(--premium-gold)]">Tratamientos</span>
-          </Link>
-          <Link href="/turnos" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <CalendarDays className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Turnos</span>
-          </Link>
-          <Link href="/promociones" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <Percent className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Promos</span>
-          </Link>
-          <Link href="/perfil" className="flex min-w-0 flex-1 flex-col items-center gap-1 text-[var(--soft-gray)]/80">
-            <User className="h-5 w-5 text-[var(--soft-gray)]/90" strokeWidth={1.8} />
-            <span className="text-[9px] tracking-[0.12em]">Perfil</span>
-          </Link>
-        </div>
-      </nav>
     </div>
   );
 }
@@ -376,7 +322,7 @@ export default function TreatmentsPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#111111] text-[var(--soft-gray)]/60">
+        <div className="flex min-h-screen items-center justify-center bg-white text-gray-500">
           Cargando…
         </div>
       }

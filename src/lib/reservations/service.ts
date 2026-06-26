@@ -412,14 +412,13 @@ export async function insertPanelReservation(
 
   await ensureReservationIndexes(db);
 
-  const allowedTimes = await computeBookableSlots(db, {
+  const flex = await validatePanelFlexibleSlot(db, {
     dateKey,
-    treatmentId: treatment.id,
-    now,
-    scope: "panel",
+    timeLocal,
+    durationMinutes: treatment.durationMinutes,
   });
-  if (!allowedTimes.includes(timeLocal)) {
-    return { error: "Ese horario no está disponible.", code: "SLOT_UNAVAILABLE" };
+  if ("error" in flex) {
+    return { error: flex.error, code: flex.code };
   }
 
   const interval = slotIntervalMs(dateKey, timeLocal, treatment.durationMinutes);
@@ -513,6 +512,48 @@ export async function findReservationByHexId(db: Db, hexId: string): Promise<Res
 const RESCHEDULEABLE_STATUSES: ReservationStatus[] = ["confirmed", "pending_payment"];
 const CANCELLABLE_STATUSES: ReservationStatus[] = ["confirmed", "pending_payment"];
 
+/** Panel: cualquier HH:MM válido si no solapa con otro turno o bloqueo. */
+async function validatePanelFlexibleSlot(
+  db: Db,
+  input: {
+    dateKey: string;
+    timeLocal: string;
+    durationMinutes: number;
+    excludeReservationHexId?: string | null;
+  },
+): Promise<{ ok: true } | { error: string; code?: string }> {
+  const dateKey = input.dateKey.trim();
+  const timeLocal = input.timeLocal.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || !/^\d{2}:\d{2}$/.test(timeLocal)) {
+    return { error: "Fecha u horario inválidos.", code: "INVALID_SLOT" };
+  }
+
+  const interval = slotIntervalMs(dateKey, timeLocal, input.durationMinutes);
+  if (!interval) {
+    return { error: "Fecha u horario inválidos.", code: "INVALID_SLOT" };
+  }
+
+  let excludeOid: ObjectId | undefined;
+  const ex = input.excludeReservationHexId?.trim();
+  if (ex && /^[a-f0-9]{24}$/i.test(ex)) {
+    try {
+      excludeOid = new ObjectIdCtor(ex);
+    } catch {
+      excludeOid = undefined;
+    }
+  }
+
+  const capGetter = await buildCapGetterForDate(db, dateKey);
+  if (await reservationWouldExceedSalonCapacity(db, dateKey, interval, capGetter, excludeOid)) {
+    return {
+      error: "Ese horario choca con otro turno o con un bloqueo de agenda.",
+      code: "SLOT_OVERLAP",
+    };
+  }
+
+  return { ok: true };
+}
+
 /**
  * Cambia día/hora de una reserva (mismo tratamiento y duración).
  * Cliente: solo su WhatsApp; panel: cualquier turno movible.
@@ -583,15 +624,27 @@ export async function rescheduleReservation(
   const slotScope: BookingSlotScope =
     input.actor === "panel" ? "panel" : doc.source === "panel" ? "panel" : "public";
 
-  const allowed = await computeBookableSlots(db, {
-    dateKey: newKey,
-    treatmentId,
-    now: input.now,
-    scope: slotScope,
-    excludeReservationHexId: hex,
-  });
-  if (!allowed.includes(newTime)) {
-    return { error: "Ese horario no está disponible para este servicio.", code: "SLOT_UNAVAILABLE" };
+  if (input.actor === "panel") {
+    const flex = await validatePanelFlexibleSlot(db, {
+      dateKey: newKey,
+      timeLocal: newTime,
+      durationMinutes: duration,
+      excludeReservationHexId: hex,
+    });
+    if ("error" in flex) {
+      return { error: flex.error, code: flex.code };
+    }
+  } else {
+    const allowed = await computeBookableSlots(db, {
+      dateKey: newKey,
+      treatmentId,
+      now: input.now,
+      scope: slotScope,
+      excludeReservationHexId: hex,
+    });
+    if (!allowed.includes(newTime)) {
+      return { error: "Ese horario no está disponible para este servicio.", code: "SLOT_UNAVAILABLE" };
+    }
   }
 
   let excludeOid: ObjectId;

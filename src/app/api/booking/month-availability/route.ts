@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { buildSalonCalendarItems } from "@/lib/booking/salon-availability";
 import { computeBookableSlots, computeBookableSlotsForTreatmentIds } from "@/lib/booking/compute-bookable-slots";
+import { listDayOverridesForMonth } from "@/lib/booking/day-overrides";
 import { getDb } from "@/lib/mongodb";
 import { verifyPanelCookie } from "@/lib/panel-turnos-auth";
 import { isValidEpicaServiceCombo } from "@/lib/treatments/abundant-hair";
@@ -55,9 +56,11 @@ export async function GET(request: Request) {
   try {
     const db = await getDb();
     const now = new Date();
+    const overrideMap = await listDayOverridesForMonth(db, year, monthIndex);
     const keys = buildSalonCalendarItems(year, monthIndex).map((d) => d.value);
     const entries = await Promise.all(
       keys.map(async (dateKey) => {
+        const dayOverride = overrideMap.get(dateKey) ?? null;
         const slots =
           serviceIds.length > 0
             ? await computeBookableSlotsForTreatmentIds(db, {
@@ -65,12 +68,14 @@ export async function GET(request: Request) {
                 treatmentIds: serviceIds,
                 now,
                 scope,
+                dayOverride,
               })
             : await computeBookableSlots(db, {
                 dateKey,
                 treatmentId,
                 now,
                 scope,
+                dayOverride,
               });
         return [dateKey, slots.length > 0] as const;
       }),

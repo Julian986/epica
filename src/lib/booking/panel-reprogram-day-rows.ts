@@ -5,7 +5,8 @@ import type { BookingSlotScope } from "@/lib/booking/compute-bookable-slots";
 import { computeBookableSlots } from "@/lib/booking/compute-bookable-slots";
 import { intervalForAgendaBlockOnDate, listSalonAgendaBlocksApplyingToDateKey } from "@/lib/booking/agenda-blocks";
 import { filterPublicSlotsByTreatmentRules } from "@/lib/booking/treatment-slot-rules";
-import { filterSlotsServiceEndsOnOrBeforeClose, getAvailableTimesForDate } from "@/lib/booking/salon-availability";
+import { getDayOverrideForDateKey } from "@/lib/booking/day-overrides";
+import { filterSlotsServiceEndsOnOrBeforeClose, resolveSalonSlotStarts } from "@/lib/booking/salon-availability";
 import { getPublicBookableTimeSlots } from "@/lib/booking/public-slot-lead";
 import {
   intervalsOverlap,
@@ -74,8 +75,12 @@ export async function computeReprogramDayRows(
   }
 
   const { dateKey, scope } = params;
+  const dayOverride = await getDayOverrideForDateKey(db, dateKey);
+  const overrideRef = dayOverride ? { kind: dayOverride.kind, slots: dayOverride.slots } : null;
   let candidateSlots =
-    scope === "public" ? getPublicBookableTimeSlots(dateKey, params.now) : getAvailableTimesForDate(dateKey);
+    scope === "public"
+      ? getPublicBookableTimeSlots(dateKey, params.now, overrideRef)
+      : resolveSalonSlotStarts(dateKey, overrideRef);
   candidateSlots = filterSlotsServiceEndsOnOrBeforeClose(candidateSlots, treatment.durationMinutes);
   candidateSlots = filterPublicSlotsByTreatmentRules(treatment.id, candidateSlots, dateKey);
 
@@ -85,6 +90,7 @@ export async function computeReprogramDayRows(
     now: params.now,
     scope,
     excludeReservationHexId: params.excludeReservationHexId,
+    dayOverride,
   });
   const availableSet = new Set(available);
 

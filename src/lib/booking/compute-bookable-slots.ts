@@ -2,13 +2,43 @@ import type { Db, ObjectId } from "mongodb";
 import { ObjectId as ObjectIdCtor } from "mongodb";
 
 import { buildCapGetterForDate } from "@/lib/booking/agenda-blocks";
-import { getAvailableTimesForDate, filterSlotsServiceEndsOnOrBeforeClose } from "@/lib/booking/salon-availability";
+import type { SalonDayOverrideDoc } from "@/lib/booking/day-overrides";
+import { getDayOverrideForDateKey } from "@/lib/booking/day-overrides";
+import {
+  filterSlotsServiceEndsOnOrBeforeClose,
+  resolveSalonSlotStarts,
+  type SalonDayOverrideRef,
+} from "@/lib/booking/salon-availability";
 import { getPublicBookableTimeSlots } from "@/lib/booking/public-slot-lead";
 import { KERATINA_ONLY_TIME_LOCAL, filterPublicSlotsByTreatmentRules } from "@/lib/booking/treatment-slot-rules";
 import { filterSlotsBySalonCapacity, loadBusyIntervalsMs } from "@/lib/booking/slot-overlap";
 import { findSalonTreatmentById } from "@/lib/treatments/catalog";
 
 export type BookingSlotScope = "public" | "panel";
+
+function dayOverrideRef(doc: SalonDayOverrideDoc | null | undefined): SalonDayOverrideRef | null {
+  if (!doc) return null;
+  return { kind: doc.kind, slots: doc.slots };
+}
+
+async function resolveBaseSlots(
+  db: Db,
+  params: {
+    dateKey: string;
+    now: Date;
+    scope: BookingSlotScope;
+    dayOverride?: SalonDayOverrideDoc | null;
+  },
+): Promise<string[]> {
+  const override =
+    params.dayOverride === undefined
+      ? dayOverrideRef(await getDayOverrideForDateKey(db, params.dateKey))
+      : dayOverrideRef(params.dayOverride);
+  if (params.scope === "public") {
+    return getPublicBookableTimeSlots(params.dateKey, params.now, override);
+  }
+  return resolveSalonSlotStarts(params.dateKey, override);
+}
 
 /**
  * Horarios elegibles para un día y tratamiento (plantilla + reglas de servicio + solapes con DB).
@@ -22,6 +52,8 @@ export async function computeBookableSlots(
     scope: BookingSlotScope;
     /** Al reprogramar, excluir esta reserva del cómputo de ocupación. */
     excludeReservationHexId?: string | null;
+    /** Evita una query extra si el caller ya cargó el override del mes. */
+    dayOverride?: SalonDayOverrideDoc | null;
   },
 ): Promise<string[]> {
   const treatment = findSalonTreatmentById(params.treatmentId.trim());
@@ -37,10 +69,12 @@ export async function computeBookableSlots(
     }
   }
 
-  let slots =
-    params.scope === "public"
-      ? getPublicBookableTimeSlots(params.dateKey, params.now)
-      : getAvailableTimesForDate(params.dateKey);
+  let slots = await resolveBaseSlots(db, {
+    dateKey: params.dateKey,
+    now: params.now,
+    scope: params.scope,
+    dayOverride: params.dayOverride,
+  });
 
   slots = filterSlotsServiceEndsOnOrBeforeClose(slots, treatment.durationMinutes);
   slots = filterPublicSlotsByTreatmentRules(treatment.id, slots, params.dateKey);
@@ -60,6 +94,7 @@ export async function computeBookableSlotsForTreatmentIds(
     now: Date;
     scope: BookingSlotScope;
     excludeReservationHexId?: string | null;
+    dayOverride?: SalonDayOverrideDoc | null;
   },
 ): Promise<string[]> {
   function pad2(n: number) {
@@ -88,10 +123,12 @@ export async function computeBookableSlotsForTreatmentIds(
     }
   }
 
-  let slots =
-    params.scope === "public"
-      ? getPublicBookableTimeSlots(params.dateKey, params.now)
-      : getAvailableTimesForDate(params.dateKey);
+  let slots = await resolveBaseSlots(db, {
+    dateKey: params.dateKey,
+    now: params.now,
+    scope: params.scope,
+    dayOverride: params.dayOverride,
+  });
   slots = filterSlotsServiceEndsOnOrBeforeClose(slots, totalDuration);
   const keratinaIdx = treatments.findIndex((t) => t.id === "keratina");
   if (params.scope === "public" && keratinaIdx >= 0) {

@@ -32,6 +32,7 @@ export function PanelNuevoTurnoClient() {
   const [selectedTreatmentId, setSelectedTreatmentId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [customTime, setCustomTime] = useState("");
   const [treatmentFirstHintVisible, setTreatmentFirstHintVisible] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -47,7 +48,8 @@ export function PanelNuevoTurnoClient() {
     [selectedTreatmentId],
   );
 
-  const hasSlot = Boolean(selectedServiceIds.length > 0 && selectedDate && selectedTime);
+  const effectiveTime = customTime.trim() || selectedTime;
+  const hasSlot = Boolean(selectedServiceIds.length > 0 && selectedDate && effectiveTime);
   const datosComplete = Boolean(
     customerName.trim().length >= 2 &&
       isLikelyWhatsappNumber(customerPhone) &&
@@ -92,8 +94,13 @@ export function PanelNuevoTurnoClient() {
     }
   }, [selectedDate, selectedTime, selectedTreatmentId, remoteSlots]);
 
+  useEffect(() => {
+    if (!customTime.trim()) return;
+    setSelectedTime("");
+  }, [customTime]);
+
   async function handleSubmit() {
-    if (!selectedTreatment || !selectedDate || !selectedTime || !datosComplete) return;
+    if (!selectedTreatment || !selectedDate || !effectiveTime || !datosComplete) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -103,7 +110,7 @@ export function PanelNuevoTurnoClient() {
         body: JSON.stringify({
           treatmentId: selectedTreatment.id,
           dateKey: selectedDate,
-          timeLocal: selectedTime,
+          timeLocal: effectiveTime,
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
           whatsappOptIn,
@@ -153,7 +160,10 @@ export function PanelNuevoTurnoClient() {
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
           selectedTime={selectedTime}
-          onTimeChange={setSelectedTime}
+          onTimeChange={(time) => {
+            setCustomTime("");
+            setSelectedTime(time);
+          }}
           remoteTimeSlots={
             selectedDate && selectedServiceIds.length > 0 ? (remoteSlots ?? null) : undefined
           }
@@ -163,12 +173,31 @@ export function PanelNuevoTurnoClient() {
           onTreatmentFirstHintVisible={setTreatmentFirstHintVisible}
         />
 
+        {selectedDate && selectedServiceIds.length > 0 ? (
+          <section className={`mt-4 space-y-2 ${panelCard} px-4 py-4`}>
+            <label className={panelLabel} htmlFor="pn-customTime">
+              Horario personalizado (opcional)
+            </label>
+            <p className="text-[12px] leading-snug text-gray-500">
+              Si coordinaste por WhatsApp un horario distinto al publicado (ej. 17:30), cargalo acá.
+            </p>
+            <input
+              id="pn-customTime"
+              type="time"
+              step={900}
+              value={customTime}
+              onChange={(e) => setCustomTime(e.target.value)}
+              className={panelInput}
+            />
+          </section>
+        ) : null}
+
         {hasSlot && (
           <section className={`mt-6 space-y-4 ${panelCard} px-4 py-4`}>
             <div>
               <p className={panelLabel}>Datos del cliente</p>
               <p className="mt-1 text-[12px] text-gray-500">
-                Turno el {formatSalonDisplayDate(selectedDate)} a las {selectedTime}
+                Turno el {formatSalonDisplayDate(selectedDate)} a las {effectiveTime}
               </p>
             </div>
             <div className="space-y-3">

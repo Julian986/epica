@@ -163,7 +163,7 @@ export const PanelReservationCard = forwardRef<HTMLElement, PanelReservationCard
               ].join(" ")}
             >
               <CalendarClock className="h-5 w-5 shrink-0" strokeWidth={2} />
-              Reprogramar
+              Cambiar horario
             </Link>
 
             <div className="mt-2.5 flex items-center justify-between gap-3">

@@ -223,3 +223,20 @@ export function panelDurationLabel(treatmentName: string, category: string): str
   if (category === "Lacio" || category === "Complementarios") return "A confirmar";
   return "Consultar";
 }
+
+function formatDurationMinutesShort(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h > 0 && m > 0) return `${h} h ${m} min`;
+  if (h > 0) return `${h} h`;
+  return `${m} min`;
+}
+
+/** Duración visible en cards de servicios (/turnos). */
+export function serviceDurationLabel(treatmentId: string): string {
+  const t = findSalonTreatmentById(treatmentId);
+  if (!t) return "";
+  return formatDurationMinutesShort(t.durationMinutes);
+}
+
+export const LACIO_PROVISIONAL_DURATION_LABEL = formatDurationMinutesShort(PROVISIONAL_LACIO_MINUTES);
